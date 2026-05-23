@@ -1,5 +1,8 @@
-
 target/
 dbt_packages/
 logs/
-data
+data/
+
+test.sql
+dev.duckdb
+prod.duckdb

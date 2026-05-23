@@ -1,15 +1,6 @@
-Welcome to your new dbt project!
+# Modern Data Stack - nyc_taxi_trips (dbt + DuckDB)
 
-### Using the starter project
-
-Try running the following commands:
-- dbt run
-- dbt test
-
-
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
+[![dbt](https://img.shields.io/badge/dbt-1.10-orange.svg)](https://www.getdbt.com/)
+[![DuckDB](https://img.shields.io/badge/duckdb-1.4.4-%23FFF000.svg)](https://duckdb.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)

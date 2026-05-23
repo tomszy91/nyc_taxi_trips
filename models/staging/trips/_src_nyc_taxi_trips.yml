@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: local_parquet_source
+    tables:
+      - name: nyc_taxi_trips
+        meta:
+          external_location: "./data/yellow_tripdata_*.parquet"

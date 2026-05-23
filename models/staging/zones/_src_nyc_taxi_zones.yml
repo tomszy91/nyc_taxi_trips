@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: local_csv_source
+    tables:
+      - name: taxi_zone_lookup
+        meta:
+          external_location: "./data/taxi_zone_lookup.csv"
+          options:
+            header: true
