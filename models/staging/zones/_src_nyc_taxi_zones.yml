@@ -8,3 +8,20 @@ sources:
           external_location: "./data/taxi_zone_lookup.csv"
           options:
             header: true
+        description: Taxi Zone dimension tavle
+        columns:
+          - name: locationid
+            data_type: bigint
+            description: Primary key. Key representing a specific TLC taxi zone. Maps directly to `PULocationID` (Pickup) and `DOLocationID` (Dropoff) in source trip fact tables.
+
+          - name: borough
+            data_type: varchar
+            description: The administrative district of New York City where the taxi zone is situated
+
+          - name: zone
+            data_type: varchar
+            description: The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone.
+
+          - name: service_zone
+            data_type: varchar
+            description: The regulatory service classification designated by the TLC. Indicates operational restrictions and vehicle licensing zones.

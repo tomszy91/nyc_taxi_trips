@@ -6,3 +6,84 @@ sources:
       - name: nyc_taxi_trips
         meta:
           external_location: "./data/yellow_tripdata_*.parquet"
+        description: Raw data collected from parquet files published by NYC Taxi & Limousine Commission. Fact table of NYC TLC taxi trips.
+        columns:
+          - name: vendorid
+            data_type: integer
+            description: "{{ doc('vendorid') }}"
+
+          - name: tpep_pickup_datetime
+            data_type: timestamp
+            description: The date and time when the meter was engaged.
+
+          - name: tpep_dropoff_datetime
+            data_type: timestamp
+            description: The date and time when the meter was disengaged
+
+          - name: passenger_count
+            data_type: bigint
+            description: The number of passengers in the vehicle. 
+
+          - name: trip_distance
+            data_type: double
+            description: The elapsed trip distance in miles reported by the taximeter. 
+
+          - name: ratecodeid
+            data_type: bigint
+            description: "{{ doc('ratecodeid') }}"
+
+          - name: store_and_fwd_flag
+            data_type: varchar
+            description: "{{ doc('store_and_fwd_flag') }}"
+
+          - name: pulocationid
+            data_type: integer
+            description: TLC Taxi Zone in which the taximeter was engaged.
+
+          - name: dolocationid
+            data_type: integer
+            description: TLC Taxi Zone in which the taximeter was disengaged.
+
+          - name: payment_type
+            data_type: bigint
+            description: "{{ doc('payment_type') }}"
+
+          - name: fare_amount
+            data_type: double
+            description: The time-and-distance fare calculated by the meter.
+
+          - name: extra
+            data_type: double
+            description: Miscellaneous extras and surcharges. 
+
+          - name: mta_tax
+            data_type: double
+            description: Tax that is automatically triggered based on the metered rate in use. 
+
+          - name: tip_amount
+            data_type: double
+            description: Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
+
+          - name: tolls_amount
+            data_type: double
+            description: Total amount of all tolls paid in trip.
+
+          - name: improvement_surcharge
+            data_type: double
+            description: Improvement surcharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
+
+          - name: total_amount
+            data_type: double
+            description: The total amount charged to passengers. Does not include cash tips
+
+          - name: congestion_surcharge
+            data_type: double
+            description: The total amount charged to passengers. Does not include cash tips
+
+          - name: airport_fee
+            data_type: double
+            description: For pick up only at LaGuardia and John F. Kennedy Airports.
+
+          - name: cbd_congestion_fee
+            data_type: double
+            description: Per-trip charge for MTA's Congestion Relief Zone starting Jan.

@@ -3,8 +3,10 @@ with source as (
   ),
   renamed as (
       select
-          *
-
+        locationid as location_id,
+        borough as borough,
+        zone as zone,
+        service_zone as service_zone
       from source
   )
   select * from renamed
