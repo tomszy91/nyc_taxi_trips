@@ -8,7 +8,7 @@ sources:
           external_location: "./data/taxi_zone_lookup.csv"
           options:
             header: true
-        description: Raw data from NYC TLC Taxi Zone dimension table
+        description: Raw data from NYC TLC Taxi Zone dimension table.
         columns:
           - name: locationid
             data_type: bigint

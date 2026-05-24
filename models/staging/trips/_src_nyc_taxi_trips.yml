@@ -86,4 +86,4 @@ sources:
 
           - name: cbd_congestion_fee
             data_type: double
-            description: Per-trip charge for MTA's Congestion Relief Zone starting Jan.
+            description: Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
