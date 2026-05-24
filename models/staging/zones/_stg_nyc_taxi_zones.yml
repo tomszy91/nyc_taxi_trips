@@ -1,16 +1,10 @@
 version: 2
 
-sources:
-  - name: local_csv_source
-    tables:
-      - name: taxi_zone_lookup
-        meta:
-          external_location: "./data/taxi_zone_lookup.csv"
-          options:
-            header: true
-        description: Raw data from NYC TLC Taxi Zone dimension table
-        columns:
-          - name: locationid
+models:
+  - name: stg_nyc_taxi_zones
+    description: This model cleans column names from Raw Taxi Zone dimension table
+    columns:
+          - name: location_id
             data_type: bigint
             description: Primary key. Key representing a specific TLC taxi zone. Maps directly to `PULocationID` (Pickup) and `DOLocationID` (Dropoff) in source trip fact tables.
 
