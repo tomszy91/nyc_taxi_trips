@@ -4,26 +4,26 @@ with source as (
 
 renamed as (
     select
-        VendorID as vendor_id,
-        tpep_pickup_datetime as meter_on,
-        tpep_dropoff_datetime as meter_off,
-        passenger_count as passenger_count,
-        trip_distance as trip_distance,
-        RatecodeID as rate_code_id,
-        store_and_fwd_flag as stored_flag,
-        PULocationID as meter_on_zone_id,
-        DOLocationID as meter_off_zone_id,
-        payment_type as payment_type,
-        fare_amount as fare_amount,
-        extra as extra_charges,
-        mta_tax as tax_amount,
-        tip_amount as tip_amount,
-        tolls_amount as tolls_amount,
-        improvement_surcharge as improvement_surcharge,
-        total_amount as total_amount,
-        congestion_surcharge as congestion_surcharge,
-        Airport_fee as airport_fee,
-        cbd_congestion_fee as cbd_congestion_fee
+        cast(VendorID as smallint) vendor_id,
+        cast(tpep_pickup_datetime as timestamp) as meter_on,
+        cast(tpep_dropoff_datetime as timestamp) as meter_off,
+        cast(passenger_count as smallint) as passenger_count,
+        cast(trip_distance as decimal(8,2)) as trip_distance,
+        cast(RatecodeID as smallint) as rate_code_id,
+        cast(store_and_fwd_flag as char(1)) as stored_flag,
+        cast(PULocationID as smallint) as meter_on_zone_id,
+        cast(DOLocationID as smallint) as meter_off_zone_id,
+        cast(payment_type as smallint) as payment_type,
+        cast(fare_amount as decimal(8,2)) as fare_amount,
+        cast(extra as decimal(8,2)) as extra_charges,
+        cast(mta_tax as decimal(8,2)) as tax_amount,
+        cast(tip_amount as decimal(8,2)) as tip_amount,
+        cast(tolls_amount as decimal(8,2)) as tolls_amount,
+        cast(improvement_surcharge as decimal(8,2)) as improvement_surcharge,
+        cast(total_amount as decimal(8,2)) as total_amount,
+        cast(congestion_surcharge as decimal(8,2)) as congestion_surcharge,
+        cast(Airport_fee as decimal(8,2)) as airport_fee,
+        cast(cbd_congestion_fee as decimal(8,2)) as cbd_congestion_fee
     from source
 )
 

@@ -1,5 +1,5 @@
 with source as (
-    select * from {{ ref('stg_nyc_taxi_trips') }}
+    select * from {{ ref('int_trips_cleaned') }}
 ),
 
 -- flagging charged but returned fare
@@ -36,10 +36,14 @@ suspicious_trip as (
 ),
 
 -- adding returned fare flag to main table
+--    True if the trip is part of a charge/reversal pair (same vendor, time, zones, fare sums to zero). Both records in the pair are flagged. 
+--    Business decision pending: whether to deduplicate or keep both records.
 enriched as (
     select
         s.*,
-        case when r.vendor_id is not null then true else false end as is_returned
+        case when r.vendor_id is not null then true else false end as is_returned,
+        s.meter_off - s.meter_on as duration_time,
+        case when (s.trip_distance = 0) or (s.meter_off = s.meter_on) then null else round(s.trip_distance::numeric / (datediff('second', s.meter_on, s.meter_off) / 3600::numeric),2) end as average_speed
     from suspicious_trip as s left join returned_fare as r on
         s.vendor_id = r.vendor_id
         and s.meter_on = r.meter_on
@@ -48,4 +52,4 @@ enriched as (
         and s.meter_off_zone_id = r.meter_off_zone_id
 )
 
-select * from enriched
+select * from enriched order by trip_distance desc

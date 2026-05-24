@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"python.defaultInterpreterPath": "F:\\Nauka\\dbt\\.venv\\Scripts\\python.exe",
-		"dbt.perspectiveTheme": "Vintage"
+		"dbt.perspectiveTheme": "Vintage",
+		"dbt.lineage.defaultExpansion": 5
 	}
 }

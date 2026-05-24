@@ -3,10 +3,10 @@ with source as (
   ),
   renamed as (
       select
-        locationid as location_id,
-        borough as borough,
-        zone as zone,
-        service_zone as service_zone
+        cast(locationid as smallint) as location_id,
+        cast(borough as varchar) as borough,
+        cast(zone as varchar) as zone,
+        cast(service_zone as varchar) as service_zone
       from source
   )
   select * from renamed
