@@ -52,4 +52,4 @@ enriched as (
         and s.meter_off_zone_id = r.meter_off_zone_id
 )
 
-select * from enriched order by trip_distance desc
+select * from enriched

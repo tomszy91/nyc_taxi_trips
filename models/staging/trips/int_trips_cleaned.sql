@@ -9,7 +9,7 @@ cleaned as (
     from
         source
     where
-        -- end time later then start time
+        -- end time earlier than start time
         meter_on < meter_off
 
         -- maximum distance 500 miles
