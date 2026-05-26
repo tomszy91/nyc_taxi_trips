@@ -9,5 +9,6 @@ with source as (
         cast(service_zone as varchar) as service_zone
       from source
   )
+  
   select * from renamed
     

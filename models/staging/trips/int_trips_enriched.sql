@@ -4,19 +4,24 @@ trips as (
 ),
 
 zones as (
-    select * from {{ ref("stg_nyc_taxi_zones")}}
+    select * from {{ ref("int_zones_enriched")}}
 ),
 
 -- join trips with zones to make human readable pickup, dropoff zones
 trips_zones as (
     select
         t.*,
-        z1.borough as pickup_borough,
-        z1.zone as pickup_zone,
-        z1.service_zone as pickup_service_zone,
-        z2.borough as dropoff_borough,
-        z2.zone as dropoff_zone,
-        z2.service_zone as dropoff_service_zone
+        coalesce(z1.borough, 'No zone match') as pickup_borough,
+        coalesce(z1.zone, 'No zone match') as pickup_zone,
+        coalesce(z1.service_zone, 'No zone match') as pickup_service_zone,
+        
+        coalesce(z2.borough, 'No zone match') as dropoff_borough,
+        coalesce(z2.zone, 'No zone match') as dropoff_zone,
+        coalesce(z2.service_zone, 'No zone match') as dropoff_service_zone,
+
+        coalesce(z1.zone_status, 'No zone match') as pickup_zone_status,
+        coalesce(z2.zone_status, 'No zone match') as dropoff_zone_status
+        
     from
         trips as t
             left join zones as z1 on t.meter_on_zone_id = z1.location_id
