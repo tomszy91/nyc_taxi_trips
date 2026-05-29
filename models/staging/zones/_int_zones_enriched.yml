@@ -1,0 +1,29 @@
+models:
+  - name: int_zones_enriched
+    description: >
+      A dimension model that standardizes and enriches the NYC TLC taxi zones reference data. It handles data cleansing for edge cases by explicitly mapping specific system identifiers (LocationID 264 for 'Unknown' and 265 for 'Outside of NYC') across all geographical attributes. Additionally, it introduces a `zone_status` operational flag to easily filter or segment trips occurring within versus outside New York City boundaries.
+    columns:
+      - name: location_id
+        data_type: smallint
+        description: >
+          Primary key. Primary key. Key representing a specific TLC taxi zone. Maps directly to `PULocationID` (Pickup) and `DOLocationID` (Dropoff) in source trip fact tables.
+
+      - name: borough
+        data_type: varchar
+        description: >
+          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: service_zone
+        data_type: varchar
+        description: >
+          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+
+      - name: zone_status
+        data_type: varchar
+        description: >
+          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.

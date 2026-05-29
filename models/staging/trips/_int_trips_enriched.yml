@@ -1,0 +1,166 @@
+version: 2
+
+models:
+  - name: int_trips_enriched
+    description: >
+      An intermediate model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
+    columns:
+      - name: vendor_id
+        data_type: smallint
+        description: >
+          "{{ doc('vendorid') }}"
+
+      - name: meter_on
+        data_type: timestamp
+        description: >
+          The date and time when the meter was engaged.
+
+      - name: meter_off
+        data_type: timestamp
+        description: >
+          The date and time when the meter was disengaged
+
+      - name: passenger_count
+        data_type: smallint
+        description: >
+          The number of passengers in the vehicle.
+
+      - name: trip_distance
+        data_type: decimal(8,2)
+        description: >
+          The elapsed trip distance in miles reported by the taximeter.
+
+      - name: rate_code_id
+        data_type: smallint
+        description: >
+          "{{ doc('ratecodeid') }}"
+
+      - name: stored_flag
+        data_type: varchar
+        description: >
+          "{{ doc('store_and_fwd_flag') }}"
+
+      - name: meter_on_zone_id
+        data_type: smallint
+        description: >
+          TLC Taxi Zone in which the taximeter was engaged.
+
+      - name: meter_off_zone_id
+        data_type: smallint
+        description: >
+          TLC Taxi Zone in which the taximeter was disengaged.
+
+      - name: payment_type
+        data_type: smallint
+        description: >
+          "{{ doc('payment_type') }}"
+
+      - name: fare_amount
+        data_type: decimal(8,2)
+        description: >
+          The time-and-distance fare calculated by the meter.
+
+      - name: extra_charges
+        data_type: decimal(8,2)
+        description: >
+          Miscellaneous extras and surcharges.
+
+      - name: tax_amount
+        data_type: decimal(8,2)
+        description: >
+          Tax that is automatically triggered based on the metered rate in use.
+
+      - name: tip_amount
+        data_type: decimal(8,2)
+        description: >
+          Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
+
+      - name: tolls_amount
+        data_type: decimal(8,2)
+        description: >
+          Total amount of all tolls paid in trip.
+
+      - name: improvement_surcharge
+        data_type: decimal(8,2)
+        description: >
+          Improvecharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
+
+      - name: total_amount
+        data_type: decimal(8,2)
+        description: >
+          The total amount charged to passengers. Does not include cash tips
+
+      - name: congestion_surcharge
+        data_type: decimal(8,2)
+        description: >
+          The total amount charged to passengers. Does not include cash tips
+
+      - name: airport_fee
+        data_type: decimal(8,2)
+        description: >
+          For pick up only at LaGuardia and John F. Kennedy Airports.
+
+      - name: cbd_congestion_fee
+        data_type: decimal(8,2)
+        description: >
+          Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
+
+      - name: is_suspisious
+        data_type: boolean
+        description: >
+          An anomaly flag set to true if the record exhibits unusual traits: 0 passengers (except Flex Fare trips), missing or non-positive trip distance, or a zero/missing fare amount when the payment type is not explicitly 'No Charge'.
+
+      - name: is_returned
+        data_type: boolean
+        description: >
+          True if the trip is part of a charge/reversal pair (same vendor, timestamps, zones, and fares that sum to zero). Both matching records in the pair are flagged. Business decision pending on whether to keep or deduplicate.
+
+      - name: duration_time
+        data_type: interval
+        description: >
+          Calculated time interval representing the total duration of the trip (meter_off minus meter_on).
+
+      - name: average_speed
+        data_type: double
+        description: >
+          Calculated average travel speed in miles per hour during the trip. Returns null if the trip distance is 0 or if the start and end times are identical to prevent division by zero errors.
+
+      - name: pickup_borough
+        data_type: varchar
+        description: >
+          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: pickup_zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: pickup_service_zone
+        data_type: varchar
+        description: >
+          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+
+      - name: dropoff_borough
+        data_type: varchar
+        description: >
+          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: dropoff_zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+
+      - name: dropoff_service_zone
+        data_type: varchar
+        description: >
+          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+
+      - name: pickup_zone_status
+        data_type: varchar
+        description: >
+          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+
+      - name: dropoff_zone_status
+        data_type: varchar
+        description: >
+          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
