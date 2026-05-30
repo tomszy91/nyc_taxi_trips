@@ -33,7 +33,7 @@ models:
       - name: rate_code_id
         data_type: smallint
         description: >
-          "{{ doc('ratecodeid') }}"
+          "{{ doc('ratecodeidenriched') }}"
 
       - name: stored_flag
         data_type: varchar

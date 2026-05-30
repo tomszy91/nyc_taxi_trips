@@ -10,7 +10,12 @@ zones as (
 -- join trips with zones to make human readable pickup, dropoff zones
 trips_zones as (
     select
-        t.*,
+        t.* REPLACE (
+            case
+                when t.payment_type = 0 then 99
+                else t.rate_code_id
+            end as rate_code_id
+        ),
         coalesce(z1.borough, 'No zone match') as pickup_borough,
         coalesce(z1.zone, 'No zone match') as pickup_zone,
         coalesce(z1.service_zone, 'No zone match') as pickup_service_zone,

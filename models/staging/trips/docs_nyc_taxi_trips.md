@@ -27,6 +27,22 @@ The final rate code in effect at the end of the trip.
 
 {% enddocs %}
 
+{% docs ratecodeidenriched %}
+
+The final rate code in effect at the end of the trip. If payment type is Flex Fare, then rate code is enriched to 99 value instead of null value.
+
+| id        | description            |
+|-----------|------------------------|
+| 1         | Standard rate          |
+| 2         | JFK                    |
+| 3         | Newark                 |
+| 4         | Nassau or Westchester  |
+| 5         | Negotiated fare        |
+| 6         | Group ride             |
+| 99        | Null/unknown           |
+
+{% enddocs %}
+
 {% docs store_and_fwd_flag %}
 
 This flag indicates whether the trip record was held in vehicle memory before sending to the vendor, aka “store and forward,” because the vehicle did not have a connection to the server.
