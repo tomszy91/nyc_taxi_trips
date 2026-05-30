@@ -4,6 +4,10 @@ models:
   - name: int_trips_enriched
     description: >
       An intermediate model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('int_trips_flagged')
+
     columns:
       - name: vendor_id
         data_type: smallint
@@ -34,6 +38,12 @@ models:
         data_type: smallint
         description: >
           "{{ doc('ratecodeidenriched') }}"
+        data_tests:
+          - accepted_values:
+              config:
+                where: "payment_type = 0"
+              arguments:
+                values: [99]
 
       - name: stored_flag
         data_type: varchar
@@ -129,38 +139,54 @@ models:
         data_type: varchar
         description: >
           The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
 
       - name: pickup_zone
         data_type: varchar
         description: >
           The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
 
       - name: pickup_service_zone
         data_type: varchar
         description: >
           The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+        data_tests:
+          - not_null
 
       - name: dropoff_borough
         data_type: varchar
         description: >
           The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
 
       - name: dropoff_zone
         data_type: varchar
         description: >
           The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
 
       - name: dropoff_service_zone
         data_type: varchar
         description: >
           The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+        data_tests:
+          - not_null
 
       - name: pickup_zone_status
         data_type: varchar
         description: >
           A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+        data_tests:
+          - not_null
 
       - name: dropoff_zone_status
         data_type: varchar
         description: >
           A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+        data_tests:
+          - not_null          

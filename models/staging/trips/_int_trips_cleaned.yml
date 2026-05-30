@@ -4,6 +4,11 @@ models:
   - name: int_trips_cleaned
     description: >
       An intermediate model designed for data cleansing and anomaly enforcement on raw taxi trip records. It filters out system errors and non-physical outliers based on spatial (distance between 0 and 500 miles), temporal (drop-off time must be after pickup time), and velocity (calculated speed lower than 100 mph) thresholds to ensure data quality for downstream reporting.
+    data_tests:
+      - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          arguments:
+            column_A: meter_off
+            column_B: meter_on  
     columns:
       - name: vendor_id
         data_type: smallint
@@ -29,6 +34,11 @@ models:
         data_type: decimal(8,2)
         description: >
           The elapsed trip distance in miles reported by the taximeter.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0.001
+                max_value: 499.999
 
       - name: rate_code_id
         data_type: smallint

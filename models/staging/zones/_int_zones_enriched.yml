@@ -27,3 +27,8 @@ models:
         data_type: varchar
         description: >
           A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Zone inside NYC', 'Zone outside NYC', 'Zone unknown']
