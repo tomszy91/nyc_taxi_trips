@@ -13,98 +13,172 @@ sources:
             data_type: integer
             description: >
               "{{ doc('vendorid') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [1, 2, 6, 7]              
 
           - name: tpep_pickup_datetime
             data_type: timestamp
             description: >
               The date and time when the meter was engaged.
+            data_tests:
+              - not_null
+              - not_before_date
 
           - name: tpep_dropoff_datetime
             data_type: timestamp
             description: >
               The date and time when the meter was disengaged
+            data_tests:
+              - not_null
+              - not_before_date
 
           - name: passenger_count
             data_type: bigint
             description: >
-              The number of passengers in the vehicle. 
+              The number of passengers in the vehicle. Null value is related to Flex Fare which requires special handling.
+            data_tests:
+              - not_negative
+              - not_null:
+                  config:
+                    where: "payment_type <> 0"
 
           - name: trip_distance
             data_type: double
             description: >
               The elapsed trip distance in miles reported by the taximeter. 
+            data_tests:
+              - not_negative
+              - not_null
 
           - name: ratecodeid
             data_type: bigint
             description: >
               "{{ doc('ratecodeid') }}"
+            data_tests:
+              - not_null:
+                  config:
+                    where: "payment_type <> 0"
+              - accepted_values:
+                  arguments:
+                    values: [1, 2, 3, 4, 5, 6, 99]
 
           - name: store_and_fwd_flag
             data_type: varchar
             description: >
               "{{ doc('store_and_fwd_flag') }}"
+            data_tests:
+              - not_null:
+                  config:
+                    where: "payment_type <> 0"            
+              - accepted_values:
+                  arguments:
+                    values: ['Y', 'N']         
 
           - name: pulocationid
             data_type: integer
             description: >
               TLC Taxi Zone in which the taximeter was engaged.
+            data_tests:
+              - not_null            
+              - relationships:
+                  arguments:
+                    to: source('local_csv_source', 'taxi_zone_lookup')
+                    field: locationid
 
           - name: dolocationid
             data_type: integer
             description: >
               TLC Taxi Zone in which the taximeter was disengaged.
+            data_tests:
+              - not_null            
+              - relationships:
+                  arguments:
+                    to: source('local_csv_source', 'taxi_zone_lookup')
+                    field: locationid
 
           - name: payment_type
             data_type: bigint
             description: >
               "{{ doc('payment_type') }}"
+            data_tests:
+              - not_null            
+              - accepted_values:
+                  arguments:
+                    values: [0, 1, 2, 3, 4, 5, 6]  
 
           - name: fare_amount
             data_type: double
             description: >
               The time-and-distance fare calculated by the meter.
+            data_tests:
+              - not_null    
 
           - name: extra
             data_type: double
             description: >
               Miscellaneous extras and surcharges. 
+            data_tests:
+              - not_null    
 
           - name: mta_tax
             data_type: double
             description: >
               Tax that is automatically triggered based on the metered rate in use. 
+            data_tests:
+              - not_null    
 
           - name: tip_amount
             data_type: double
             description: >
               Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
+            data_tests:
+              - not_null    
 
           - name: tolls_amount
             data_type: double
             description: >
               Total amount of all tolls paid in trip.
+            data_tests:
+              - not_null    
 
           - name: improvement_surcharge
             data_type: double
             description: >
               Improvement surcharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
+            data_tests:
+              - not_null    
 
           - name: total_amount
             data_type: double
             description: >
-              The total amount charged to passengers. Does not include cash tips
+              The total amount charged to passengers. Does not include cash tips.
+            data_tests:
+              - not_null    
 
           - name: congestion_surcharge
             data_type: double
             description: >
-              The total amount charged to passengers. Does not include cash tips
+              The total amount charged to passengers. Does not include cash tips. Null value is related to Flex Fare which requires special handling.
+            data_tests:
+              - not_null:
+                  config:
+                    where: "payment_type <> 0"    
 
           - name: airport_fee
             data_type: double
             description: >
-              For pick up only at LaGuardia and John F. Kennedy Airports.
+              For pick up only at LaGuardia and John F. Kennedy Airports. Null value is related to Flex Fare which requires special handling.
+            data_tests:
+              - not_null:
+                  config:
+                    where: "payment_type <> 0"    
 
           - name: cbd_congestion_fee
             data_type: double
             description: >
               Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
+            data_tests:
+              - not_null                  

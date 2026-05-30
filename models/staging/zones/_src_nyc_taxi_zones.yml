@@ -15,18 +15,27 @@ sources:
             data_type: bigint
             description: >
               Primary key. Key representing a specific TLC taxi zone. Maps directly to `PULocationID` (Pickup) and `DOLocationID` (Dropoff) in source trip fact tables.
+            data_tests:
+              - unique
+              - not_null
 
           - name: borough
             data_type: varchar
             description: >
               The administrative district of New York City where the taxi zone is situated
+            data_tests:
+              - not_null
 
           - name: zone
             data_type: varchar
             description: >
               The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone.
+            data_tests:
+              - not_null
 
           - name: service_zone
             data_type: varchar
             description: >
               The regulatory service classification designated by the TLC. Indicates operational restrictions and vehicle licensing zones.
+            data_tests:
+              - not_null
