@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: rpt_quality_flags
+    description: >
+      Analytical report profiling data quality anomalies (suspicious and returned/refunded trips) 
+      across vendors, rate codes, and payment methods. Used for fraud detection and ETL health monitoring.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - vendor_id
+            - rate_code_id
+            - payment_type
+    columns:
+      - name: vendor_id
+        data_type: smallint
+        description: >
+          "{{ doc('vendorid') }}"
+        tests:
+          - not_null
+
+      - name: rate_code_id
+        data_type: smallint
+        description: >
+          "{{ doc('ratecodeidenriched') }}"
+        tests:
+          - not_null
+
+      - name: payment_type
+        data_type: smallint
+        description: >
+          "{{ doc('payment_type') }}"
+        tests:
+          - not_null
+
+      - name: total_trips
+        data_type: bigint
+        description: >
+          Total volume of trips recorded for this dimensional combination.
+
+      - name: total_suspicious_trips
+        data_type: hugeint
+        description: >
+          Total count of trips flagged as suspicious (e.g., extreme duration, unrealistic distance, or negative amounts).
+
+      - name: suspicious_trips_share
+        data_type: double
+        description: >
+          Percentage of suspicious trips relative to the total volume (0.00% to 100.00%).
+
+      - name: total_returned_trips
+        data_type: double
+        description: >
+          Total count of trips flagged as returned, canceled, or fully refunded.
+
+      - name: returned_trips_share
+        data_type: double
+        description: >
+          Percentage of returned or canceled trips relative to the total volume (0.00% to 100.00%).
