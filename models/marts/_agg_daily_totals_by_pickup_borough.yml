@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: agg_daily_totals_by_pickup_borough
+    description: >
+      Daily aggregation of NYC taxi trip counts, financial metrics, and payment discrepancies, segmented by pickup borough.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pickup_borough
+    columns:
+      - name: date
+        data_type: timestamp
+        description: >
+          Format YYYY-MM-DD. The date of the trip, extracted from the trip start timestamp (meter_on).
+        tests:
+          - not_null
+
+      - name: pickup_borough
+        data_type: varchar
+        description: >
+          The borough where the trip started (e.g., Manhattan, Brooklyn, Queens).
+        tests:
+          - not_null
+
+      - name: total_fare_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated base fare amount based on time and distance.
+
+      - name: total_extra_charges
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated miscellaneous extras and surcharges (e.g., rush hour or overnight charges).
+
+      - name: total_tax_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated state/local taxes applied to the trips.
+
+      - name: total_tip_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated credit card tips. Cash tips are typically not recorded.
+
+      - name: total_tolls_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated toll fees paid during the trips.
+
+      - name: total_improvement_surcharge
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated improvement surcharges collected for infrastructure.
+
+      - name: total_congestion_surcharge
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated congestion surcharges applied to trips entering specific zones.
+
+      - name: total_airport_fee
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated pickup/drop-off fees at NYC airports.
+
+      - name: cbd_congestion_fee
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated Central Business District congestion fees.
+
+      - name: total_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated official total amount charged to passengers as logged by the vendors.
+
+      - name: total_calculated_total_amount
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated total amount recalculated mathematically by summing all individual components.
+
+      - name: total_payment_discrepancy
+        data_type: "decimal(38,2)"
+        description: >
+          Aggregated variance between the official total amount and the recalculated total amount. High variance highlights data quality issues.

@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: agg_totals_by_weekday
+    description: ""
+    columns:
+      - name: day_of_week
+        data_type: bigint
+        description: ""
+
+      - name: total_fare_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_extra_charges
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_tax_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_tip_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_tolls_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_improvement_surcharge
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_congestion_surcharge
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_airport_fee
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_cbd_congestion_fee
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_calculated_total_amount
+        data_type: decimal(38,2)
+        description: ""
+
+      - name: total_payment_discrepancy
+        data_type: decimal(38,2)
+        description: ""
