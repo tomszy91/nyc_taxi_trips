@@ -1,6 +1,6 @@
 with
 trips as (
-    select * from {{ ref("int_trips_enriched")}}
+    select * from {{ ref("fct_trips_enriched")}}
     ),
 final as (
 select

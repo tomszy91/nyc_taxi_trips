@@ -8,7 +8,7 @@ trips as (
         calculated_total_amount,
         payment_discrepancy
     from
-        {{ ref("int_trips_enriched")}}
+        {{ ref("fct_trips_enriched")}}
 ),
 
 final as (
