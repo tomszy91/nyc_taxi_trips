@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: rpt_discrepancies_analysis
+    description: >
+      Analytical report model profiling financial anomalies and data quality 
+      issues across different vendors, rate codes, and payment methods. 
+      Highlights systemic logging errors where individual fare components 
+      do not sum up to the official total amount.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - vendor_id
+            - rate_code_id
+            - payment_type
+    columns:
+      - name: vendor_id
+        data_type: smallint
+        description: >
+          "{{ doc('vendorid') }}"
+        tests:
+          - not_null
+
+      - name: rate_code_id
+        data_type: smallint
+        description: >
+          "{{ doc('ratecodeidenriched') }}"
+        tests:
+          - not_null
+
+      - name: payment_type
+        data_type: smallint
+        description: >
+          "{{ doc('payment_type') }}"
+        tests:
+          - not_null
+
+      - name: total_trips_with_discrepancy
+        data_type: hugeint
+        description: >
+          Total count of trips where total_amount does not match calculated_total_amount.
+
+      - name: total_trips
+        data_type: bigint
+        description: >
+          Total volume of trips recorded for this specific dimension combination.
+
+      - name: trips_with_discrepancy_share
+        data_type: double
+        description: >
+          Percentage of trips containing financial logging errors or discrepancies (0.00% to 100.00%).
+
+      - name: avg_total_amount
+        data_type: double
+        description: >
+          Average official total amount charged to passengers as reported by the vendor.
+
+      - name: avg_calculated_total_amount
+        data_type: double
+        description: >
+          Average total fare recalculated by summing individual logged cost components.
+
+      - name: min_payment_discrepancy
+        data_type: "decimal(18,2)"
+        description: >
+          The lowest variance observed (negative values indicate individual components oversummed the total).
+
+      - name: max_payment_discrepancy
+        data_type: "decimal(18,2)"
+        description: >
+          The highest variance observed (positive values indicate hidden fees or unmapped charges).
+
+      - name: avg_payment_discrepancy
+        data_type: double
+        description: >
+          Average mathematical variance per trip. Significant shifts from zero indicate permanent vendor-specific calculation defects.
