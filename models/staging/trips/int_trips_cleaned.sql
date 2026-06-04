@@ -1,5 +1,5 @@
 with source as (
-    select * from {{ ref('stg_nyc_taxi_trips') }}
+    select * from {{ ref('int_trips_calculated_total') }}
 ),
 
 -- remove outliers

@@ -151,13 +151,6 @@ sources:
             data_tests:
               - not_null    
 
-          - name: total_amount
-            data_type: double
-            description: >
-              The total amount charged to passengers. Does not include cash tips.
-            data_tests:
-              - not_null    
-
           - name: congestion_surcharge
             data_type: double
             description: >
@@ -181,4 +174,11 @@ sources:
             description: >
               Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
             data_tests:
-              - not_null                  
+              - not_null       
+
+          - name: total_amount
+            data_type: double
+            description: >
+              The total amount charged to passengers. Does not include cash tips.
+            data_tests:
+              - not_null               

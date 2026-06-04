@@ -20,10 +20,10 @@ renamed as (
         cast(tip_amount as decimal(8,2)) as tip_amount,
         cast(tolls_amount as decimal(8,2)) as tolls_amount,
         cast(improvement_surcharge as decimal(8,2)) as improvement_surcharge,
-        cast(total_amount as decimal(8,2)) as total_amount,
         cast(congestion_surcharge as decimal(8,2)) as congestion_surcharge,
         cast(Airport_fee as decimal(8,2)) as airport_fee,
-        cast(cbd_congestion_fee as decimal(8,2)) as cbd_congestion_fee
+        cast(cbd_congestion_fee as decimal(8,2)) as cbd_congestion_fee,
+        cast(total_amount as decimal(8,2)) as total_amount
     from source
 )
 

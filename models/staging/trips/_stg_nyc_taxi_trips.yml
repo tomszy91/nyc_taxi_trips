@@ -84,11 +84,6 @@ models:
         description: >
           Improvement surcharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
 
-      - name: total_amount
-        data_type: double
-        description: >
-          The total amount charged to passengers. Does not include cash tips
-
       - name: congestion_surcharge
         data_type: double
         description: >
@@ -103,3 +98,8 @@ models:
         data_type: double
         description: >
           Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
+
+      - name: total_amount
+        data_type: double
+        description: >
+          The total amount charged to passengers. Does not include cash tips

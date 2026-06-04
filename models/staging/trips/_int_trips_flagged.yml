@@ -89,11 +89,6 @@ models:
         description: >
           Improvecharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
 
-      - name: total_amount
-        data_type: decimal(8,2)
-        description: >
-          The total amount charged to passengers. Does not include cash tips
-
       - name: congestion_surcharge
         data_type: decimal(8,2)
         description: >
@@ -108,6 +103,21 @@ models:
         data_type: decimal(8,2)
         description: >
           Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
+
+      - name: total_amount
+        data_type: decimal(8,2)
+        description: >
+          The total amount charged to passengers. Does not include cash tips
+
+      - name: calculated_total_amount
+        data_type: double
+        description: >
+          The mathematically calculated total fare, derived by summing all available individual cost components. This value may deviate from the official `total_amount` due to inconsistencies in vendor-specific data logging.
+
+      - name: payment_discrepancy
+        data_type: double
+        description: >
+          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
 
       - name: is_suspisious
         data_type: boolean
