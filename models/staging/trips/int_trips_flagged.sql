@@ -31,7 +31,7 @@ suspicious_trip as (
             when ((fare_amount = 0 or fare_amount is null) and payment_type <> 3 ) then true
             
             else false
-            end as is_suspisious
+            end as is_suspicious
     from source
 ),
 

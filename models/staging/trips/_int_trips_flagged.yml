@@ -119,7 +119,7 @@ models:
         description: >
           The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
 
-      - name: is_suspisious
+      - name: is_suspicious
         data_type: boolean
         description: >
           An anomaly flag set to true if the record exhibits unusual traits: 0 passengers (except Flex Fare trips), missing or non-positive trip distance, or a zero/missing fare amount when the payment type is not explicitly 'No Charge'.

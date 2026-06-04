@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_trips_enriched
+  - name: fct_trips_enriched
     description: >
       An intermediate model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
     data_tests:
@@ -125,7 +125,7 @@ models:
         description: >
           The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
 
-      - name: is_suspisious
+      - name: is_suspicious
         data_type: boolean
         description: >
           An anomaly flag set to true if the record exhibits unusual traits: 0 passengers (except Flex Fare trips), missing or non-positive trip distance, or a zero/missing fare amount when the payment type is not explicitly 'No Charge'.
