@@ -1,77 +1,78 @@
 version: 2
 
 models:
-  - name: agg_totals_by_weekday
+  - name: agg_totals_by_hour
     description: >
-      Weekly day-of-week aggregation of NYC taxi financial metrics and payment discrepancies. Used to analyze intraday patterns, peak pricing hours, and hourly data quality consistency.
+      Hourly aggregation of NYC taxi financial metrics and payment discrepancies. 
+      Used to analyze intraday patterns, peak pricing hours, and hourly data quality consistency.
     columns:
-      - name: day_of_week
+      - name: hour
         data_type: bigint
         description: >
-          The ISO day of the week extracted from meter_on (1 = Monday, 7 = Sunday).
+          The hour of the day extracted from the trip start timestamp (meter_on). Value ranges from 0 to 23.
         tests:
           - unique
           - not_null
           - dbt_utils.accepted_range:
-              min_value: 1
-              max_value: 7
+              min_value: 0
+              max_value: 23
 
       - name: total_fare_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated base fare amount per day of week.
+          Hourly aggregated base fare amount.
 
       - name: total_extra_charges
         data_type: "decimal(38,2)"
         description: >
-          Aggregated miscellaneous extras and surcharges per day of week.
+          Hourly aggregated miscellaneous extras and surcharges (e.g., rush hour or overnight fees).
 
       - name: total_tax_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated state/local taxes per day of week.
+          Hourly aggregated state/local taxes.
 
       - name: total_tip_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated credit card tips per day of week.
+          Hourly aggregated credit card tips.
 
       - name: total_tolls_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated toll fees paid per day of week.
+          Hourly aggregated toll fees.
 
       - name: total_improvement_surcharge
         data_type: "decimal(38,2)"
         description: >
-          Aggregated infrastructure improvement surcharges per day of week.
+          Hourly aggregated infrastructure improvement surcharges.
 
       - name: total_congestion_surcharge
         data_type: "decimal(38,2)"
         description: >
-          Aggregated congestion surcharges per day of week.
+          Hourly aggregated congestion surcharges.
 
       - name: total_airport_fee
         data_type: "decimal(38,2)"
         description: >
-          Aggregated airport pickup/drop-off fees per day of week.
+          Hourly aggregated airport pickup/drop-off fees.
 
       - name: total_cbd_congestion_fee
         data_type: "decimal(38,2)"
         description: >
-          Aggregated Central Business District congestion fees per day of week.
+          Hourly aggregated Central Business District congestion fees.
 
       - name: total_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated official total amount charged to passengers per day of week.
+          Hourly aggregated official total amount charged to passengers.
 
       - name: total_calculated_total_amount
         data_type: "decimal(38,2)"
         description: >
-          Aggregated total amount recalculated by summing individual components per day of week.
+          Hourly aggregated total amount recalculated by summing individual cost components.
 
       - name: total_payment_discrepancy
         data_type: "decimal(38,2)"
         description: >
-          Aggregated variance between the official total amount and the recalculated total amount per day of week.
+          Hourly aggregated variance between the official total amount and the recalculated total amount.
