@@ -66,7 +66,7 @@ tests/
 
 ## Lineage
 
-![Lineage](png\lineage.png)
+![image](png/lineage.png)
 
 ---
 
