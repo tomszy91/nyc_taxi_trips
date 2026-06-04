@@ -3,7 +3,7 @@ version: 2
 models:
   - name: fct_trips_enriched
     description: >
-      An intermediate model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
+      A fact table model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
     data_tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('int_trips_flagged')
