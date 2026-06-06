@@ -6,12 +6,17 @@ models:
       Hourly aggregation of NYC taxi financial metrics and payment discrepancies. 
       Used to analyze intraday patterns, peak pricing hours, and hourly data quality consistency.
     columns:
+      - name: report_year_month
+        data_type: timestamp
+        description: >
+          The year and month of the trip derived from the trip start timestamp (meter_on)
+        tests:
+          - not_null 
       - name: hour
         data_type: bigint
         description: >
           The hour of the day extracted from the trip start timestamp (meter_on). Value ranges from 0 to 23.
         tests:
-          - unique
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0

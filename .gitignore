@@ -2,10 +2,10 @@ target/
 dbt_packages/
 logs/
 data/
+.vscode/
 
 test.sql
 dev.duckdb
 prod.duckdb
-.code-workspace
-
+*.code-workspace
 task.md

@@ -5,6 +5,11 @@ models:
     description: >
       This model sums all charges to calculate total amount. It may differ from the [total_amount] column, due to the fact, that all additional charges are calculated after the trip has been finished and reported to the NYC TLC.
     columns:
+      - name: trip_id
+        data_type: varchar
+        description: >
+          Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
+
       - name: vendor_id
         data_type: integer
         description: >
@@ -113,5 +118,5 @@ models:
       - name: payment_discrepancy
         data_type: double
         description: >
-          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
+          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
           

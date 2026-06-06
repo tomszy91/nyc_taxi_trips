@@ -4,6 +4,13 @@ models:
   - name: stg_nyc_taxi_trips
     description: This model cleans column names from Raw Taxi Trips fact table.
     columns:
+      - name: trip_id
+        data_type: varchar
+        description: >
+          Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
+        tests:
+          - not_null
+
       - name: vendor_id
         data_type: integer
         description: >

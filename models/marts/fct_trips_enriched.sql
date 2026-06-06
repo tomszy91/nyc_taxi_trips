@@ -1,6 +1,17 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key = 'trip_id',
+        incremental_strategy = 'merge'
+    )}}
+
 with
 trips as (
-    select * from {{ ref('int_trips_flagged') }}
+    select *
+    from {{ ref('int_trips_flagged') }}
+    {% if is_incremental() %}
+    where meter_on::date >= (select (max(meter_on) - interval 1 day) from {{ this }}) 
+    {% endif %}
 ),
 
 zones as (
@@ -31,6 +42,7 @@ trips_zones as (
         trips as t
             left join zones as z1 on t.meter_on_zone_id = z1.location_id
             left join zones as z2 on t.meter_off_zone_id = z2.location_id
+
 )
 
 select * from trips_zones

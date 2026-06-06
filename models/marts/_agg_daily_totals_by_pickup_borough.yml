@@ -7,9 +7,15 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
+            - report_year_month
             - date
             - pickup_borough
     columns:
+      - name: report_year_month
+        data_type: timestamp
+        description: >
+          The year and month of the trip derived from the trip start timestamp (meter_on)
+          
       - name: date
         data_type: timestamp
         description: >

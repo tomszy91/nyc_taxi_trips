@@ -1,9 +1,20 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key='trip_id',
+        incremental_strategy='merge'
+    )
+}}
+
 with source as (
     select * from {{ ref('int_trips_calculated_total') }}
+    {% if is_incremental() %}
+    where meter_on::date >= (select (max(meter_on) - interval 1 day) from {{ this }}) 
+    {% endif %}
 ),
 
 -- remove outliers
-cleaned as (
+filtered_outliers as (
     select
         *
     from
@@ -17,6 +28,27 @@ cleaned as (
         
         -- average speed lower than 100 mph
         and trip_distance::numeric / (datediff('second', meter_on, meter_off) / 3600::numeric) < 100
+),
+deduplicated as (
+    select 
+        *,
+        row_number() over (
+            partition by 
+                vendor_id, 
+                meter_on, 
+                meter_off, 
+                meter_on_zone_id, 
+                meter_off_zone_id, 
+                total_amount
+            order by trip_distance desc
+        ) as rn -- assign order to rows with the same vendor, meter_on, meter_off, pickup_zone, dropoff_zone, total_amount
+    from filtered_outliers
+),
+final as (
+    select
+        * exclude (rn)
+    from deduplicated
+    where rn = 1  -- pick only one row if it was recognized as duplicated row
 )
 
-select * from cleaned
+select * from final

@@ -12,6 +12,7 @@ dow as (
 ),
 final as (
 select
+    date_trunc('month', meter_on) as report_year_month,
     day_of_week,
     sum(fare_amount) as total_fare_amount,
     sum(extra_charges) as total_extra_charges,
@@ -26,6 +27,7 @@ select
     sum(calculated_total_amount) as total_calculated_total_amount,
     sum(payment_discrepancy) as total_payment_discrepancy
 from dow
-group by day_of_week)
+group by report_year_month, day_of_week
+)
 
 select * from final

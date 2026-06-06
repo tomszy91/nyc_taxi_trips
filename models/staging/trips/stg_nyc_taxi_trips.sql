@@ -4,6 +4,14 @@ with source as (
 
 renamed as (
     select
+        md5(concat_ws('-', 
+            coalesce(VendorID::string, ''), 
+            coalesce(tpep_pickup_datetime::string, ''), 
+            coalesce(tpep_dropoff_datetime::string, ''), 
+            coalesce(PULocationID::string, ''), 
+            coalesce(DOLocationID::string, ''), 
+            coalesce(total_amount::string, '')
+        )) as trip_id,
         cast(VendorID as smallint) vendor_id,
         cast(tpep_pickup_datetime as timestamp) as meter_on,
         cast(tpep_dropoff_datetime as timestamp) as meter_off,

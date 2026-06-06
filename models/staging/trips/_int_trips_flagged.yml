@@ -9,6 +9,11 @@ models:
           compare_model: ref('int_trips_cleaned')
        
     columns:
+      - name: trip_id
+        data_type: varchar
+        description: >
+          Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
+
       - name: vendor_id
         data_type: smallint
         description: >

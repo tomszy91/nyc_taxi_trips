@@ -5,12 +5,18 @@ models:
     description: >
       Weekly day-of-week aggregation of NYC taxi financial metrics and payment discrepancies. Used to analyze intraday patterns, peak pricing hours, and hourly data quality consistency.
     columns:
+      - name: report_year_month
+        data_type: timestamp
+        description: >
+          The year and month of the trip derived from the trip start timestamp (meter_on)
+        tests:
+          - not_null
+
       - name: day_of_week
         data_type: bigint
         description: >
           The ISO day of the week extracted from meter_on (1 = Monday, 7 = Sunday).
         tests:
-          - unique
           - not_null
           - dbt_utils.accepted_range:
               min_value: 1

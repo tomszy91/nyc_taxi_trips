@@ -1,3 +1,8 @@
+{{
+    config(
+        materialized='ephemeral'
+    )}}
+
 with
 trips as (
     select * from {{ ref('stg_nyc_taxi_trips') }}

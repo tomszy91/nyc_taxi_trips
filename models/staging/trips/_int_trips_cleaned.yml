@@ -3,13 +3,22 @@ version: 2
 models:
   - name: int_trips_cleaned
     description: >
-      An intermediate model designed for data cleansing and anomaly enforcement on raw taxi trip records. It filters out system errors and non-physical outliers based on spatial (distance between 0 and 500 miles), temporal (drop-off time must be after pickup time), and velocity (calculated speed lower than 100 mph) thresholds to ensure data quality for downstream reporting.
+      An intermediate model designed for data cleansing, anomaly enforcement, and deduplication on taxi trip records. It filters out system errors and non-physical outliers based on spatial (distance between 0 and 500 miles), temporal (drop-off time must be after pickup time), and velocity (calculated speed lower than 100 mph) thresholds. Additionally, it performs strict 
+      business deduplication using a row-number window function to resolve technical record cloning within the source files, ensuring data grain integrity for downstream reporting.    
+    
     data_tests:
       - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
           arguments:
             column_A: meter_off
             column_B: meter_on  
     columns:
+      - name: trip_id
+        data_type: varchar
+        description: >
+          Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
+        tests:
+          - unique
+              
       - name: vendor_id
         data_type: smallint
         description: >
@@ -123,4 +132,4 @@ models:
       - name: payment_discrepancy
         data_type: double
         description: >
-          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
+          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.

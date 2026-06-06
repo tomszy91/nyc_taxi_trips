@@ -4,11 +4,16 @@ models:
   - name: fct_trips_enriched
     description: >
       A fact table model that enriches flagged taxi trip records with human-readable geographical attributes. It performs a double left join with the taxi zones dimension using pickup and drop-off identifiers to append borough, neighborhood zone name, regulatory service zone, and operational zone status fields. Missing or unmapped locations are safely resolved using a default 'No zone match' string expression.
-    data_tests:
-      - dbt_utils.equal_rowcount:
-          compare_model: ref('int_trips_flagged')
 
     columns:
+      - name: trip_id
+        data_type: varchar
+        description: >
+          Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
+        tests:
+          - unique
+          - not_null
+
       - name: vendor_id
         data_type: smallint
         description: >

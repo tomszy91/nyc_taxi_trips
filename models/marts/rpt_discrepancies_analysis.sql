@@ -1,6 +1,8 @@
 with
 trips as (
     select
+        date_trunc('month', meter_on) as report_year_month,
+        meter_on,
         vendor_id,
         rate_code_id,
         payment_type,
@@ -13,6 +15,7 @@ trips as (
 
 final as (
     select
+        report_year_month,
         vendor_id,
         rate_code_id,
         payment_type,
@@ -32,6 +35,7 @@ final as (
         round(avg(payment_discrepancy),2) as avg_payment_discrepancy
     from trips
     group by 
+        report_year_month,
         vendor_id,
         rate_code_id,
         payment_type

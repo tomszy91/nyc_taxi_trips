@@ -1,6 +1,7 @@
 with
 trips as (
     select
+        date_trunc('month', meter_on) as report_year_month,
         vendor_id,
         rate_code_id,
         payment_type,
@@ -12,6 +13,7 @@ trips as (
 
 flags_count as (
     select
+        report_year_month,
         vendor_id,
         rate_code_id,
         payment_type,
@@ -29,6 +31,7 @@ flags_count as (
 
     from trips
     group by 
+        report_year_month,
         vendor_id,
         rate_code_id,
         payment_type
@@ -43,6 +46,7 @@ shares as (
 ),
 final as (
 select
+    report_year_month,
     vendor_id,
     rate_code_id,
     payment_type,
