@@ -1,5 +1,5 @@
 with trips as (
-    select * from {{ref("fct_trips_enriched")}}
+    select * from {{ source('motherduck', 'yellow_tripdata') }}
 )
 
-select count(*) from trips
+select * from trips order by tpep_pickup_datetime desc limit 5

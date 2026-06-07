@@ -9,7 +9,7 @@
 with source as (
     select * from {{ ref('int_trips_calculated_total') }}
     {% if is_incremental() %}
-    where meter_on::date >= (select (max(meter_on) - interval 1 day) from {{ this }}) 
+    where meter_on::date >= (select (max(meter_on) - interval '1 day') from {{ this }}) 
     {% endif %}
 ),
 
@@ -41,14 +41,14 @@ deduplicated as (
                 meter_off_zone_id, 
                 total_amount
             order by trip_distance desc
-        ) as rn -- assign order to rows with the same vendor, meter_on, meter_off, pickup_zone, dropoff_zone, total_amount
+        ) as rn
     from filtered_outliers
 ),
 final as (
     select
         * exclude (rn)
     from deduplicated
-    where rn = 1  -- pick only one row if it was recognized as duplicated row
+    where rn = 1
 )
 
 select * from final

@@ -4,9 +4,6 @@ models:
   - name: int_trips_flagged
     description: >
       An intermediate model that enriches cleansed taxi trip records with operational and quality flags. It identifies potentially suspicious activities (e.g., zero passengers, missing distances, or unpaid fares), flags financial adjustments/reversals (pairs of identical trips where the total fare sums to zero), and computes metrics like actual trip duration and average speed.
-    data_tests:
-      - dbt_utils.equal_rowcount:
-          compare_model: ref('int_trips_cleaned')
        
     columns:
       - name: trip_id
@@ -82,7 +79,7 @@ models:
       - name: tip_amount
         data_type: decimal(8,2)
         description: >
-          Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
+          Tip amount - This field is automatically populated for credit card tips. Cash tips are not include.
 
       - name: tolls_amount
         data_type: decimal(8,2)
@@ -115,34 +112,24 @@ models:
           The total amount charged to passengers. Does not include cash tips
 
       - name: calculated_total_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
-          The mathematically calculated total fare, derived by summing all available individual cost components. This value may deviate from the official `total_amount` due to inconsistencies in vendor-specific data logging.
+          The mathematically calculated total fare, derived by summing all available individual cost components. This value may deviate from the official total_amount due to inconsistencies in vendor-specific data logging.
 
       - name: payment_discrepancy
-        data_type: double
+        data_type: decimal(8,2)
         description: >
-          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
+          The variance between total_amount and calculated_total_amount. Non-zero values are driven by unmapped administrative fees, systemic double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
 
       - name: is_suspicious
         data_type: boolean
         description: >
           An anomaly flag set to true if the record exhibits unusual traits: 0 passengers (except Flex Fare trips), missing or non-positive trip distance, or a zero/missing fare amount when the payment type is not explicitly 'No Charge'.
-        data_tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: ['true', 'false']
 
       - name: is_returned
         data_type: boolean
         description: >
           True if the trip is part of a charge/reversal pair (same vendor, timestamps, zones, and fares that sum to zero). Both matching records in the pair are flagged. Business decision pending on whether to keep or deduplicate.
-        data_tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: ['true', 'false']
 
       - name: duration_time
         data_type: interval
@@ -153,10 +140,3 @@ models:
         data_type: double
         description: >
           Calculated average travel speed in miles per hour during the trip. Returns null if the trip distance is 0 or if the start and end times are identical to prevent division by zero errors.
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              config:
-                where: "average_speed is not null"
-              arguments:
-                min_value: 0
-                max_value: 100

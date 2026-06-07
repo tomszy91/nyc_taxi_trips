@@ -1,8 +1,3 @@
-{{
-    config(
-        materialized='ephemeral'
-    )}}
-
 with
 trips as (
     select * from {{ ref('stg_nyc_taxi_trips') }}
@@ -21,7 +16,7 @@ calculated_total as (
         + coalesce(congestion_surcharge,0)
         + coalesce(airport_fee,0)
         + coalesce(cbd_congestion_fee,0)
-    ) as calculated_total_amount
+    )::decimal(8,2) as calculated_total_amount
     from trips
     ),
 

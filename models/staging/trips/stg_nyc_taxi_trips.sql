@@ -1,5 +1,5 @@
 with source as (
-    select * from {{ source('local_parquet_source', 'nyc_taxi_trips') }}
+    select * from {{ source('motherduck', 'yellow_tripdata') }}
 ),
 
 renamed as (

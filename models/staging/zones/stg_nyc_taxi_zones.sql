@@ -1,5 +1,5 @@
 with source as (
-        select * from {{ source('local_csv_source', 'taxi_zone_lookup') }}
+        select * from {{ source('motherduck', 'taxi_zone_lookup') }}
   ),
   renamed as (
       select

@@ -1,11 +1,11 @@
 version: 2
 
 sources:
-  - name: local_parquet_source
+  - name: motherduck
+    database: nyc_taxi_trips
+    schema: raw
     tables:
-      - name: nyc_taxi_trips
-        meta:
-          external_location: "./data/yellow_tripdata_*.parquet"
+      - name: yellow_tripdata
         description: >
           Raw data collected from parquet files published by NYC Taxi & Limousine Commission. Fact table of NYC TLC taxi trips.
         columns:
@@ -85,7 +85,7 @@ sources:
               - not_null            
               - relationships:
                   arguments:
-                    to: source('local_csv_source', 'taxi_zone_lookup')
+                    to: source('motherduck', 'taxi_zone_lookup')
                     field: locationid
 
           - name: dolocationid
@@ -96,7 +96,7 @@ sources:
               - not_null            
               - relationships:
                   arguments:
-                    to: source('local_csv_source', 'taxi_zone_lookup')
+                    to: source('motherduck', 'taxi_zone_lookup')
                     field: locationid
 
           - name: payment_type

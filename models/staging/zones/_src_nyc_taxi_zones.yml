@@ -1,7 +1,9 @@
 version: 2
 
 sources:
-  - name: local_csv_source
+  - name: motherduck
+    database: nyc_taxi_trips
+    schema: raw
     tables:
       - name: taxi_zone_lookup
         meta:

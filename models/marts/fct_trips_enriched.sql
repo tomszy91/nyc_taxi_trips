@@ -10,7 +10,7 @@ trips as (
     select *
     from {{ ref('int_trips_flagged') }}
     {% if is_incremental() %}
-    where meter_on::date >= (select (max(meter_on) - interval 1 day) from {{ this }}) 
+    where meter_on::date >= (select (max(meter_on) - interval '1 day') from {{ this }}) 
     {% endif %}
 ),
 
@@ -19,7 +19,7 @@ zones as (
 ),
 
 -- join trips with zones to make human readable pickup, dropoff zones
-trips_zones as (
+final as (
     select
         t.* REPLACE (
             case
@@ -45,4 +45,4 @@ trips_zones as (
 
 )
 
-select * from trips_zones
+select * from final

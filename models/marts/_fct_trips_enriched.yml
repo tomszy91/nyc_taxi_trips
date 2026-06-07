@@ -10,7 +10,7 @@ models:
         data_type: varchar
         description: >
           Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
-        tests:
+        data_tests:
           - unique
           - not_null
 
@@ -88,7 +88,7 @@ models:
       - name: tip_amount
         data_type: decimal(8,2)
         description: >
-          Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
+          Tip amount - This field is automatically populated for credit card tips. Cash tips are not include.
 
       - name: tolls_amount
         data_type: decimal(8,2)
@@ -121,14 +121,14 @@ models:
           The total amount charged to passengers. Does not include cash tips
 
       - name: calculated_total_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The mathematically calculated total fare, derived by summing all available individual cost components. This value may deviate from the official `total_amount` due to inconsistencies in vendor-specific data logging.
 
       - name: payment_discrepancy
-        data_type: double
+        data_type: decimal(8,2)
         description: >
-          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic           double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
+          The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
 
       - name: is_suspicious
         data_type: boolean
@@ -204,4 +204,4 @@ models:
         description: >
           A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
         data_tests:
-          - not_null          
+          - not_null

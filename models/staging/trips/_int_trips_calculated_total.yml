@@ -11,7 +11,7 @@ models:
           Surrogate key generated via MD5 hashing based on vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id, and total_amount. Introduced to ensure unique record identification and handle data duplication issues in the source files.
 
       - name: vendor_id
-        data_type: integer
+        data_type: smallint
         description: >
           "{{ doc('vendorid') }}"
 
@@ -26,97 +26,96 @@ models:
           The date and time when the meter was disengaged
 
       - name: passenger_count
-        data_type: bigint
+        data_type: smallint
         description: >
           The number of passengers in the vehicle. 
 
       - name: trip_distance
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The elapsed trip distance in miles reported by the taximeter. 
 
       - name: rate_code_id
-        data_type: bigint
+        data_type: smallint
         description: >
           "{{ doc('ratecodeid') }}"
 
       - name: stored_flag
-        data_type: varchar
+        data_type: char(1)
         description: >
           "{{ doc('store_and_fwd_flag') }}"
 
       - name: meter_on_zone_id
-        data_type: integer
+        data_type: smallint
         description: >
           TLC Taxi Zone in which the taximeter was engaged.
 
       - name: meter_off_zone_id
-        data_type: integer
+        data_type: smallint
         description: >
           TLC Taxi Zone in which the taximeter was disengaged.
 
       - name: payment_type
-        data_type: bigint
+        data_type: smallint
         description: >
           "{{ doc('payment_type') }}"
 
       - name: fare_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The time-and-distance fare calculated by the meter.
 
       - name: extra_charges
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Miscellaneous extras and surcharges. 
 
       - name: tax_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Tax that is automatically triggered based on the metered rate in use. 
 
       - name: tip_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Tip amount – This field is automatically populated for credit card tips. Cash tips are not include.
 
       - name: tolls_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Total amount of all tolls paid in trip.
 
       - name: improvement_surcharge
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Improvement surcharge assessed trips at the flag drop. The improvement surcharge began being levied in 2015.
 
       - name: congestion_surcharge
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The total amount charged to passengers. Does not include cash tips
 
       - name: airport_fee
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           For pick up only at LaGuardia and John F. Kennedy Airports.
 
       - name: cbd_congestion_fee
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           Per-trip charge for MTA's Congestion Relief Zone starting 01 Jan 2025.
 
       - name: total_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The total amount charged to passengers. Does not include cash tips
 
       - name: calculated_total_amount
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The mathematically calculated total fare, derived by summing all available individual cost components. This value may deviate from the official `total_amount` due to inconsistencies in vendor-specific data logging.
 
       - name: payment_discrepancy
-        data_type: double
+        data_type: decimal(8,2)
         description: >
           The variance between `total_amount` and `calculated_total_amount`. Non-zero values are driven by unmapped administrative fees, systemic double-reporting of surcharges, or missing breakdown metrics for transactions with an unknown payment type.
-          
