@@ -27,7 +27,7 @@ jobs:
             - name: profiles.yml create
               run: |
                 mkdir -p ~/.dbt
-                cat > ~.dbt/profiles.yml << EOF
+                cat > ~/.dbt/profiles.yml << EOF
                 nyc_taxi_trips:
                     target: prod
                     outputs:
