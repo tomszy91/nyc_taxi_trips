@@ -3,11 +3,12 @@
 [![dbt](https://img.shields.io/badge/dbt-1.10-orange.svg)](https://www.getdbt.com/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.10-yellow.svg)](https://duckdb.org/)
 [![MotherDuck](https://img.shields.io/badge/MotherDuck-cloud-blue.svg)](https://motherduck.com/)
+[![CI](https://github.com/tomszy91/nyc_taxi_trips/actions/workflows/dbt_build.yml/badge.svg)](https://github.com/tomszy91/nyc_taxi_trips/actions/workflows/dbt_build.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A dbt portfolio project built on NYC Taxi & Limousine Commission (TLC) Yellow Taxi trip data. The pipeline transforms raw monthly Parquet files into analytics-ready mart tables, with incremental loading designed for recurring monthly uploads.
+A dbt portfolio project built on NYC Taxi & Limousine Commission (TLC) Yellow Taxi trip data. The pipeline transforms raw monthly Parquet files into analytics-ready mart tables, with incremental loading designed for recurring monthly uploads and automated execution via GitHub Actions.
 
-**Stack:** dbt 1.10 · dbt-duckdb · MotherDuck (cloud) · Power BI
+**Stack:** dbt 1.10 · dbt-duckdb · MotherDuck (cloud) · GitHub Actions
 
 ---
 
@@ -39,15 +40,15 @@ Raw data: [NYC TLC Trip Record Data](https://www.nyc.gov/site/tlc/about/tlc-trip
 models/
   staging/
     trips/
-      stg_nyc_taxi_trips.sql               -- rename, cast, generate surrogate key
-      int_trips_calculated_total.sql       -- recalculate total from components, derive discrepancy
-      int_trips_cleaned.sql                -- remove physical outliers (speed, distance, time), deduplicate [incremental]
-      int_trips_flagged.sql                -- flag suspicious trips and charge reversals, add duration/speed
+      stg_nyc_taxi_trips.sql                        -- rename, cast, generate surrogate key
+      int_trips_calculated_total.sql                -- recalculate total from components, derive discrepancy
+      int_trips_cleaned.sql                         -- remove physical outliers (speed, distance, time), deduplicate [incremental]
+      int_trips_flagged.sql                         -- flag suspicious trips and charge reversals, add duration/speed
     zones/
-      stg_nyc_taxi_zones.sql               -- rename, cast
-      int_zones_enriched.sql               -- handle LocationID 264/265, add zone_status flag
+      stg_nyc_taxi_zones.sql                        -- rename, cast
+      int_zones_enriched.sql                        -- handle LocationID 264/265, add zone_status flag
   marts/
-    fct_trips_enriched.sql                 -- join trips with zones, main fact table [incremental]
+    fct_trips_enriched.sql                          -- join trips with zones, main fact table [incremental]
     agg_daily_totals_by_pickup_borough.sql
     agg_weekly_totals_by_pickup_borough.sql
     agg_totals_by_hour.sql
@@ -57,15 +58,19 @@ models/
 
 macros/
   tests/
-    not_negative.sql                       -- custom test: rejects negative values
-    not_before_date.sql                    -- custom test: rejects timestamps before 1970-01-01
+    not_negative.sql                                -- custom test: rejects negative values
+    not_before_date.sql                             -- custom test: rejects timestamps before 1970-01-01
 
 tests/
-  assert_calculated_total_is_correct.sql         -- validates total recalculation formula (last 1 day)
-  assert_int_trips_cleaned_unique_recent.sql      -- unique trip_id in last 35 days
-  assert_flags_not_null_recent.sql               -- is_suspicious and is_returned not null in last 35 days
-  assert_average_speed_in_range_recent.sql       -- average_speed within 0-100 mph in last 35 days
-  assert_flagged_rowcount_matches_cleaned_recent -- row count parity between cleaned and flagged (last 35 days)
+  assert_calculated_total_is_correct.sql            -- validates total recalculation formula (last 1 day)
+  assert_int_trips_cleaned_unique_recent.sql        -- unique trip_id in last 35 days
+  assert_flags_not_null_recent.sql                  -- is_suspicious and is_returned not null in last 35 days
+  assert_average_speed_in_range_recent.sql          -- average_speed within 0-100 mph in last 35 days
+  assert_flagged_rowcount_matches_cleaned_recent    -- row count parity between cleaned and flagged (last 35 days)
+
+.github/
+  workflows/
+    dbt_build.yml                                   -- CI/CD: automated dbt build on push and monthly schedule
 ```
 
 ## Lineage
@@ -144,15 +149,27 @@ con.execute("""
 """)
 ```
 
-```bash
-dbt build
-```
+The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC and runs `dbt build` against the `prod` schema on MotherDuck. The pipeline can also be triggered manually from the Actions tab or on any push to `main`.
 
 On incremental runs, only records newer than the current table max (minus 1 day overlap) are processed through the transformation chain. A full rebuild from scratch can be forced with:
 
 ```bash
 dbt build --full-refresh
 ```
+
+---
+
+## CI/CD
+
+Automated via GitHub Actions (`.github/workflows/dbt_build.yml`).
+
+| Trigger | When |
+| --- | --- |
+| Schedule | 1st of each month, 08:00 UTC |
+| Push to `main` | On every commit merged to main |
+| Manual | Via Actions tab (`workflow_dispatch`) |
+
+The workflow installs dbt-duckdb, constructs `profiles.yml` from a GitHub Secret (`MOTHERDUCK_TOKEN`), runs `dbt deps`, and executes `dbt build` against the `prod` schema. A failed test causes the workflow to exit with a non-zero code, which marks the run as failed and triggers a GitHub email notification.
 
 ---
 
@@ -164,11 +181,12 @@ dbt build --full-refresh
 # Install dbt packages
 dbt deps
 
-# Configure MotherDuck connection in profiles.yml
+# Configure MotherDuck connection in ~/.dbt/profiles.yml
 # Profile name: nyc_taxi_trips
 # Target: dev
 # Type: duckdb
-# Path: md:  (MotherDuck cloud)
+# Path: md:nyc_taxi_trips
+# Token: read from MOTHERDUCK_TOKEN environment variable
 
 # Build all models and run all tests
 dbt build
