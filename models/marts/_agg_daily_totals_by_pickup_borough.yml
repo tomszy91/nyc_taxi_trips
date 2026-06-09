@@ -6,10 +6,11 @@ models:
       Daily aggregation of NYC taxi trip counts, financial metrics, and payment discrepancies, segmented by pickup borough.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - report_year_month
-            - date
-            - pickup_borough
+          arguments:
+            combination_of_columns:
+              - report_year_month
+              - date
+              - pickup_borough
     columns:
       - name: report_year_month
         data_type: timestamp
