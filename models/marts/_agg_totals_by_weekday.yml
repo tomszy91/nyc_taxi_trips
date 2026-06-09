@@ -19,8 +19,9 @@ models:
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              min_value: 1
-              max_value: 7
+              arguments:
+                min_value: 1
+                max_value: 7
 
       - name: total_fare_amount
         data_type: "decimal(38,2)"

@@ -7,11 +7,12 @@ models:
       across vendors, rate codes, and payment methods. Used for fraud detection and ETL health monitoring.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - report_year_month
-            - vendor_id
-            - rate_code_id
-            - payment_type
+          arguments:
+            combination_of_columns:
+              - report_year_month
+              - vendor_id
+              - rate_code_id
+              - payment_type
     columns:
       - name: report_year_month
         data_type: timestamp

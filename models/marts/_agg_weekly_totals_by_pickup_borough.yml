@@ -6,9 +6,10 @@ models:
       Weekly aggregation of NYC taxi trip counts, financial metrics, and payment discrepancies, segmented by pickup borough.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year_week
-            - pickup_borough
+          arguments:
+            combination_of_columns:
+              - year_week
+              - pickup_borough
     columns:
       - name: year_week
         data_type: bigint
