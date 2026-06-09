@@ -1,0 +1,50 @@
+name: dbt_build
+on:
+    schedule:
+        - cron: '0 8 1 * *'
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    dbt_build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: repository checkout
+              uses: actions/checkout@v4
+
+            - name: python setup
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+
+            - name: dbt install
+              run: |
+                pip install dbt-duckdb
+
+            - name: profiles.yml create
+              run: |
+                mkdir -p ~/.dbt
+                cat > ~.dbt/profiles.yml << EOF
+                nyc_taxi_trips:
+                    target: prod
+                    outputs:
+                        prod:
+                            type: duckdb
+                            path: md:nyc_taxi_trips
+                            token: "${{ secrets.MOTHERDUCK_TOKEN }}"
+                            schema: prod
+                            threads: 4
+                EOF
+
+            - name: dbt packages install
+              run: |
+                dbt deps
+
+            - name: dbt build run
+              run: |
+                dbt build 
+              env:
+                MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
