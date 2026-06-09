@@ -6,10 +6,6 @@ sources:
     schema: raw
     tables:
       - name: taxi_zone_lookup
-        meta:
-          external_location: "./data/taxi_zone_lookup.csv"
-          options:
-            header: true
         description: >
           Raw data from NYC TLC Taxi Zone dimension table.
         columns:
