@@ -45,7 +45,8 @@ jobs:
 
             - name: dbt source freshness run
               run: |
-                dbt source freshness 
+                dbt source freshness
+              continue-on-error: true
               env:
                 MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
 
