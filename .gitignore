@@ -3,6 +3,7 @@ dbt_packages/
 logs/
 data/
 .vscode/
+*.rar
 
 test.sql
 dev.duckdb

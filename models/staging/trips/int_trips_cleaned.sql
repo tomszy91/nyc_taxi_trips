@@ -2,7 +2,8 @@
     config(
         materialized='incremental',
         unique_key='trip_id',
-        incremental_strategy='merge'
+        incremental_strategy='merge',
+        post_hook="{{ update_watermark('int_trips_cleaned') }}"
     )
 }}
 

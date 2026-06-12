@@ -60,6 +60,7 @@ macros/
   tests/
     not_negative.sql                                -- custom test: rejects negative values
     not_before_date.sql                             -- custom test: rejects timestamps before 1970-01-01
+  update_watermark.sql                              -- updates _metadata_watermarks after incremental run
 
 tests/
   assert_calculated_total_is_correct.sql            -- validates total recalculation formula (last 1 day)
@@ -85,13 +86,22 @@ tests/
 
 **Intermediate layer is split by responsibility.** Each `int_` model has one job: `int_trips_calculated_total` recalculates totals, `int_trips_cleaned` removes physical outliers, `int_trips_flagged` adds quality flags. Splitting them keeps the lineage readable and makes it possible to test each transformation step independently.
 
-**Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records from the last day relative to the current table max are processed through the intermediate view chain, keeping runtime manageable on large datasets.
+**Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records newer than the current table max (minus 1 day overlap) are processed through the intermediate view chain.
+
+**Watermark table drives source freshness.** A dedicated `raw._metadata_watermarks` table stores the latest `meter_on` timestamp from `int_trips_cleaned`. It is updated via a `post_hook` macro after every incremental run. Source freshness reads from this single-row table instead of scanning the full source, keeping `dbt source freshness` near-instant. The source is configured with `on_error: continue` so a stale result does not fail the pipeline. The watermark table must be created once before the first run:
+
+```sql
+create table if not exists nyc_taxi_trips.raw._metadata_watermarks (
+    table_name varchar primary key,
+    last_meter_on timestamp
+);
+```
 
 **Singular tests are scoped to recent data.** Generic tests with `config.where` using `{{ this }}` do not resolve correctly in the dbt-duckdb adapter. All windowed tests are implemented as singular tests in `tests/` using `{{ ref() }}`, scoped to the last 35 days to keep test runtime proportional to the incremental window.
 
 **Zone edge cases are handled in `int_zones_enriched`, not in the fact model.** LocationIDs 264 and 265 have special meaning in the TLC data dictionary (Unknown and Outside of NYC). The hardcoded mapping lives in one place; `fct_trips_enriched` does a clean join with no knowledge of those IDs.
 
-**Suspicious trips and charge reversals are flagged, not removed.** `is_suspicious` and `is_returned` are boolean flags. The decision on whether to filter them sits with the business user in Power BI, not in the pipeline. Both open decisions are documented inline in the YAML.
+**Suspicious trips and charge reversals are flagged, not removed.** `is_suspicious` and `is_returned` are boolean flags. The decision on whether to filter them sits with the business user in the BI layer, not in the pipeline. Both open decisions are documented inline in the YAML.
 
 **`payment_discrepancy` is an explicit column, not a filter.** The difference between `total_amount` (vendor-reported) and `calculated_total_amount` (sum of components) is surfaced for every trip and aggregated in `rpt_discrepancies_analysis`. This makes vendor-specific logging defects visible rather than silently absorbed.
 
@@ -117,6 +127,7 @@ tests/
 
 - `not_negative` -- fails if any value in the column is below zero
 - `not_before_date` -- fails if any timestamp predates 1970-01-01
+- `update_watermark` -- called via `post_hook` on `int_trips_cleaned` to maintain the watermark table
 
 **Packages used:**
 
@@ -127,6 +138,7 @@ tests/
 
 - Source `not_null` and `accepted_values` on all key columns
 - Referential integrity between trip zone IDs and the zone lookup table
+- Source freshness check via `_metadata_watermarks` (warn after 40 days, error after 60 days)
 - Unique `trip_id` on recent data (last 35 days) via singular test
 - Row count parity between `int_trips_cleaned` and `int_trips_flagged` on recent data
 - `is_suspicious` and `is_returned` not null on recent data
@@ -137,7 +149,7 @@ tests/
 
 ## Monthly data load workflow
 
-New monthly Parquet files are appended to the MotherDuck raw table, then `dbt build` handles the rest:
+The only manual step is loading a new Parquet file into MotherDuck before the scheduled pipeline run. Everything else is automated.
 
 ```python
 import duckdb
@@ -149,9 +161,15 @@ con.execute("""
 """)
 ```
 
-The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC and runs `dbt build` against the `prod` schema on MotherDuck. The pipeline can also be triggered manually from the Actions tab or on any push to `main`.
+The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC and runs `dbt build` against the `prod` schema on MotherDuck. After the incremental run completes, the `update_watermark` post_hook updates `_metadata_watermarks` with the new max `meter_on` value.
 
-On incremental runs, only records newer than the current table max (minus 1 day overlap) are processed through the transformation chain. A full rebuild from scratch can be forced with:
+Source freshness can be checked independently at any time:
+
+```bash
+dbt source freshness
+```
+
+A full rebuild from scratch can be forced with:
 
 ```bash
 dbt build --full-refresh
@@ -169,7 +187,7 @@ Automated via GitHub Actions (`.github/workflows/dbt_build.yml`).
 | Push to `main` | On every commit merged to main |
 | Manual | Via Actions tab (`workflow_dispatch`) |
 
-The workflow installs dbt-duckdb, constructs `profiles.yml` from a GitHub Secret (`MOTHERDUCK_TOKEN`), runs `dbt deps`, and executes `dbt build` against the `prod` schema. A failed test causes the workflow to exit with a non-zero code, which marks the run as failed and triggers a GitHub email notification.
+The workflow installs dbt-duckdb, constructs `profiles.yml` from a GitHub Secret (`MOTHERDUCK_TOKEN`), runs `dbt deps`, and executes `dbt build` against the `prod` schema. A failed test on `dbt build` causes the workflow to exit with a non-zero code and triggers a GitHub email notification. The `dbt source freshness` step runs with `continue-on-error: true` so a stale source warning or error does not block the build — freshness is informational, not a hard gate.
 
 ---
 
@@ -188,8 +206,18 @@ dbt deps
 # Path: md:nyc_taxi_trips
 # Token: read from MOTHERDUCK_TOKEN environment variable
 
+# Create watermark table (one-time setup)
+# Run in Python or DuckDB CLI:
+# create table if not exists nyc_taxi_trips.raw._metadata_watermarks (
+#     table_name varchar primary key,
+#     last_meter_on timestamp
+# );
+
 # Build all models and run all tests
 dbt build
+
+# Check source freshness
+dbt source freshness
 
 # Generate and serve documentation
 dbt docs generate && dbt docs serve

@@ -43,6 +43,12 @@ jobs:
               run: |
                 dbt deps
 
+            - name: dbt source freshness run
+              run: |
+                dbt source freshness 
+              env:
+                MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+
             - name: dbt build run
               run: |
                 dbt build 

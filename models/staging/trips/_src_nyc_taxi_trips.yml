@@ -6,6 +6,17 @@ sources:
     schema: raw
     tables:
       - name: yellow_tripdata
+        config:
+          freshness:
+            warn_after:
+              count: 40
+              period: day
+            error_after:
+              count: 60
+              period: day
+          loaded_at_query: >
+            select last_meter_on from nyc_taxi_trips.raw._metadata_watermarks where table_name = 'int_trips_cleaned'
+          on_error: continue
         description: >
           Raw data collected from parquet files published by NYC Taxi & Limousine Commission. Fact table of NYC TLC taxi trips.
         columns:
