@@ -3,8 +3,7 @@ version: 2
 models:
   - name: int_trips_cleaned
     description: >
-      An intermediate model designed for data cleansing, anomaly enforcement, and deduplication on taxi trip records. It filters out system errors and non-physical outliers based on spatial (distance between 0 and 500 miles), temporal (drop-off time must be after pickup time), and velocity (calculated speed lower than 100 mph) thresholds. Additionally, it performs strict
-      business deduplication using a row-number window function to resolve technical record cloning within the source files, ensuring data grain integrity for downstream reporting.
+      An intermediate model designed for data cleansing, anomaly enforcement, and deduplication on taxi trip records. It filters out system errors and non-physical outliers based on spatial (distance between 0 and 500 miles), temporal (drop-off time must be after pickup time), and velocity (calculated speed lower than 100 mph) thresholds. Additionally, it performs strict business deduplication using a row-number window function to resolve technical record cloning within the source files, ensuring data grain integrity for downstream reporting.
     columns:
       - name: trip_id
         data_type: varchar
