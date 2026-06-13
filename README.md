@@ -60,7 +60,6 @@ macros/
   tests/
     not_negative.sql                                -- custom test: rejects negative values
     not_before_date.sql                             -- custom test: rejects timestamps before 1970-01-01
-  update_watermark.sql                              -- updates _metadata_watermarks after incremental run
 
 tests/
   assert_calculated_total_is_correct.sql            -- validates total recalculation formula (last 1 day)
@@ -88,14 +87,7 @@ tests/
 
 **Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records newer than the current table max (minus 1 day overlap) are processed through the intermediate view chain.
 
-**Watermark table drives source freshness.** A dedicated `raw._metadata_watermarks` table stores the latest `meter_on` timestamp from `int_trips_cleaned`. It is updated via a `post_hook` macro after every incremental run. Source freshness reads from this single-row table instead of scanning the full source, keeping `dbt source freshness` near-instant. The source is configured with `on_error: continue` so a stale result does not fail the pipeline. The watermark table must be created once before the first run:
-
-```sql
-create table if not exists nyc_taxi_trips.raw._metadata_watermarks (
-    table_name varchar primary key,
-    last_meter_on timestamp
-);
-```
+**Source freshness scans the raw table directly.** `dbt source freshness` runs a `max(tpep_pickup_datetime)` against `raw.yellow_tripdata` without any filter. DuckDB's columnar storage makes this fast enough for a monthly check. The source is configured with `on_error: continue` so a stale result is logged but does not fail the pipeline. In the GitHub Actions workflow, the freshness step runs with `continue-on-error: true` for the same reason — freshness is informational, not a hard gate.
 
 **Singular tests are scoped to recent data.** Generic tests with `config.where` using `{{ this }}` do not resolve correctly in the dbt-duckdb adapter. All windowed tests are implemented as singular tests in `tests/` using `{{ ref() }}`, scoped to the last 35 days to keep test runtime proportional to the incremental window.
 
@@ -138,7 +130,7 @@ create table if not exists nyc_taxi_trips.raw._metadata_watermarks (
 
 - Source `not_null` and `accepted_values` on all key columns
 - Referential integrity between trip zone IDs and the zone lookup table
-- Source freshness check via `_metadata_watermarks` (warn after 40 days, error after 60 days)
+- Source freshness via `max(tpep_pickup_datetime)` on raw table (warn after 40 days, error after 80 days)
 - Unique `trip_id` on recent data (last 35 days) via singular test
 - Row count parity between `int_trips_cleaned` and `int_trips_flagged` on recent data
 - `is_suspicious` and `is_returned` not null on recent data
@@ -161,15 +153,9 @@ con.execute("""
 """)
 ```
 
-The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC and runs `dbt build` against the `prod` schema on MotherDuck. After the incremental run completes, the `update_watermark` post_hook updates `_metadata_watermarks` with the new max `meter_on` value.
+The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC. It first checks source freshness, then runs `dbt build` against the `prod` schema on MotherDuck.
 
-Source freshness can be checked independently at any time:
-
-```bash
-dbt source freshness
-```
-
-A full rebuild from scratch can be forced with:
+On incremental runs, only records newer than the current table max (minus 1 day overlap) are processed through the transformation chain. A full rebuild from scratch can be forced with:
 
 ```bash
 dbt build --full-refresh
@@ -187,7 +173,7 @@ Automated via GitHub Actions (`.github/workflows/dbt_build.yml`).
 | Push to `main` | On every commit merged to main |
 | Manual | Via Actions tab (`workflow_dispatch`) |
 
-The workflow installs dbt-duckdb, constructs `profiles.yml` from a GitHub Secret (`MOTHERDUCK_TOKEN`), runs `dbt deps`, and executes `dbt build` against the `prod` schema. A failed test on `dbt build` causes the workflow to exit with a non-zero code and triggers a GitHub email notification. The `dbt source freshness` step runs with `continue-on-error: true` so a stale source warning or error does not block the build — freshness is informational, not a hard gate.
+The workflow installs dbt-duckdb, constructs `profiles.yml` from a GitHub Secret (`MOTHERDUCK_TOKEN`), runs `dbt deps`, checks source freshness (non-blocking), and executes `dbt build` against the `prod` schema. A failed test causes the workflow to exit with a non-zero code and triggers a GitHub email notification.
 
 ---
 
@@ -213,11 +199,11 @@ dbt deps
 #     last_meter_on timestamp
 # );
 
-# Build all models and run all tests
-dbt build
-
 # Check source freshness
 dbt source freshness
+
+# Build all models and run all tests
+dbt build
 
 # Generate and serve documentation
 dbt docs generate && dbt docs serve
