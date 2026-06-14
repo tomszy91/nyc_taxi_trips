@@ -4,6 +4,7 @@
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.10-yellow.svg)](https://duckdb.org/)
 [![MotherDuck](https://img.shields.io/badge/MotherDuck-cloud-blue.svg)](https://motherduck.com/)
 [![CI](https://github.com/tomszy91/nyc_taxi_trips/actions/workflows/dbt_build.yml/badge.svg)](https://github.com/tomszy91/nyc_taxi_trips/actions/workflows/dbt_build.yml)
+[![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-yellow.svg)](https://powerbi.microsoft.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A dbt portfolio project built on NYC Taxi & Limousine Commission (TLC) Yellow Taxi trip data. The pipeline transforms raw monthly Parquet files into analytics-ready mart tables, with incremental loading designed for recurring monthly uploads and automated execution via GitHub Actions.
@@ -215,6 +216,30 @@ dbt source freshness
 # Generate and serve documentation
 dbt docs generate && dbt docs serve
 ```
+
+---
+
+## Power BI dashboard
+
+The pipeline delivers pre-aggregated mart models that connect directly to Power BI. The end user never touches raw or intermediate data: every value displayed has already been cleaned, tested, and aggregated by dbt before it reaches the BI layer.
+
+**Page 1 — Revenue and operations:**
+
+![image](png/report_01.png)
+
+Key KPIs (total trips, total amount, total tips) with breakdown by hour of day, day of week, pickup borough, and a map of most frequent pickup zones. Power BI queries `agg_totals_by_hour`, `agg_totals_by_weekday`, and `agg_daily_totals_by_pickup_borough` directly, not the entire fact table.
+
+**Page 2 — Fare discrepancies:**
+
+![image](png/report_02.png)
+
+Discrepancy ratio by vendor, rate code, and payment type. Min/max discrepancy per vendor. Sourced from `rpt_discrepancies_analysis`. Human-readable labels (vendor name, rate code description, payment type description) come from dimension seeds joined in `fct_trips_enriched`, requiring no additional lookups in Power BI.
+
+**Page 3 — Data quality flags:**
+
+![image](png/report_03.png)
+
+Returned and suspicious trip rates by vendor, with absolute counts. Sourced from `rpt_quality_flags`. Flags are set in the pipeline, not computed in DAX.
 
 ---
 
