@@ -20,7 +20,7 @@ with recent as (
         )::decimal(8,2) as expected_total_amount
     from {{ ref('int_trips_calculated_total') }}
     where meter_on::date >= (
-        select max(meter_on)::date - interval '1 day'
+        select max(meter_on)::date - interval '35 day'
         from {{ ref('int_trips_calculated_total') }}
     )
 )

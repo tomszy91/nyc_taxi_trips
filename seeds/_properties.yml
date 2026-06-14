@@ -1,0 +1,80 @@
+seeds:
+  - name: dim_payment_type
+    description: >
+      Explanatory table that explains payment types IDs into human readable descriptions based on the NYC TLC documentation, which can be used in the further transformations
+    config:
+      column_types:
+        id: smallint
+        description: varchar
+    columns:
+      - name: id
+        description: >
+          Primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: description
+        description: "{{ doc('payment_type') }}"
+
+  - name: dim_ratecode
+    description: >
+      Explanatory table that explains rate codes IDs into human readable descriptions based on the NYC TLC documentation, which can be used in the further transformations
+    config:
+      column_types:
+        id: smallint
+        description: varchar
+    columns:
+      - name: id
+        description: >
+          Primary key.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: source('motherduck', 'yellow_tripdata')
+                field: RatecodeID
+      - name: description
+        description: "{{ doc('ratecodeidenriched') }}"
+
+  - name: dim_store_and_fwd_flag
+    description: >
+      Explanatory table that explains store and forward flags into human readable descriptions based on the NYC TLC documentation, which can be used in the further transformations
+    config:
+      column_types:
+        flag: char(1)
+        description: varchar
+    columns:
+      - name: flag
+        description: >
+          Primary key.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: source('motherduck', 'yellow_tripdata')
+                field: store_and_fwd_flag
+      - name: description
+        description: "{{ doc('store_and_fwd_flag') }}"
+
+  - name: dim_vendor
+    description: >
+      Explanatory table that explains Vendor IDs into human readable names based on the NYC TLC documentation, which can be used in the further transformations
+    config:
+      column_types:
+        id: smallint
+        description: varchar
+    columns:
+      - name: id
+        description: >
+          Primary key.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: source('motherduck', 'yellow_tripdata')
+                field: VendorID
+      - name: description
+        description: "{{ doc('vendorid') }}"

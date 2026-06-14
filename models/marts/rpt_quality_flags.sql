@@ -3,8 +3,11 @@ trips as (
     select
         date_trunc('month', meter_on) as report_year_month,
         vendor_id,
+        vendor_name,        
         rate_code_id,
+        rate_code_description,        
         payment_type,
+        payment_type_description,        
         is_suspicious,
         is_returned
     from
@@ -15,8 +18,11 @@ flags_count as (
     select
         report_year_month,
         vendor_id,
+        vendor_name,             
         rate_code_id,
+        rate_code_description,           
         payment_type,
+        payment_type_description,            
         count(*) as total_trips,
         
         sum(
@@ -33,8 +39,11 @@ flags_count as (
     group by 
         report_year_month,
         vendor_id,
+        vendor_name,             
         rate_code_id,
-        payment_type
+        rate_code_description,           
+        payment_type,
+        payment_type_description,          
 ),
 
 shares as (
@@ -48,8 +57,11 @@ final as (
 select
     report_year_month,
     vendor_id,
+    vendor_name,    
     rate_code_id,
+    rate_code_description,
     payment_type,
+    payment_type_description,    
     total_trips,
     total_suspicious_trips,
     suspicious_trips_share,

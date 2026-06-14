@@ -1,7 +1,15 @@
+{{
+    config(
+        materialized = 'incremental',
+        unique_key = 'trip_id',
+        incremental_strategy = 'merge'
+    )
+}}
+
 with source as (
     select * from {{ ref('int_trips_calculated_total') }}
     {% if is_incremental() %}
-    where meter_on::date >= (select (max(meter_on) - interval '1 day') from {{ this }}) 
+    where meter_on::date >= (select (max(meter_on) - interval '35 day') from {{ this }}) 
     {% endif %}
 ),
 

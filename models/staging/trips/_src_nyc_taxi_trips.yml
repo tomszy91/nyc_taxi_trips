@@ -28,7 +28,11 @@ sources:
               - not_null
               - accepted_values:
                   arguments:
-                    values: [1, 2, 6, 7]              
+                    values: [1, 2, 6, 7]  
+              - relationships:
+                  arguments:
+                    to: ref('dim_vendor')
+                    field: id                                      
 
           - name: tpep_pickup_datetime
             data_type: timestamp
@@ -75,6 +79,10 @@ sources:
               - accepted_values:
                   arguments:
                     values: [1, 2, 3, 4, 5, 6, 99]
+              - relationships:
+                  arguments:
+                    to: ref('dim_ratecode')
+                    field: id                    
 
           - name: store_and_fwd_flag
             data_type: varchar
@@ -86,7 +94,11 @@ sources:
                     where: "payment_type <> 0"            
               - accepted_values:
                   arguments:
-                    values: ['Y', 'N']         
+                    values: ['Y', 'N']      
+              - relationships:
+                  arguments:
+                    to: ref('dim_store_and_fwd_flag')
+                    field: flag                          
 
           - name: pulocationid
             data_type: integer
@@ -118,7 +130,11 @@ sources:
               - not_null            
               - accepted_values:
                   arguments:
-                    values: [0, 1, 2, 3, 4, 5, 6]  
+                    values: [0, 1, 2, 3, 4, 5, 6]
+              - relationships:
+                  arguments:
+                    to: ref('dim_payment_type')
+                    field: id
 
           - name: fare_amount
             data_type: double

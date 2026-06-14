@@ -28,6 +28,11 @@ models:
         tests:
           - not_null
 
+      - name: vendor_name
+        data_type: varchar
+        description: >
+          "{{ doc('vendorid') }}"
+
       - name: rate_code_id
         data_type: smallint
         description: >
@@ -35,12 +40,22 @@ models:
         tests:
           - not_null
 
+      - name: rate_code_description
+        data_type: varchar
+        description: >
+          "{{ doc('ratecodeidenriched') }}"
+
       - name: payment_type
         data_type: smallint
         description: >
           "{{ doc('payment_type') }}"
         tests:
           - not_null
+
+      - name: payment_type_description
+        data_type: varchar
+        description: >
+          "{{ doc('payment_type') }}"    
 
       - name: total_trips
         data_type: bigint

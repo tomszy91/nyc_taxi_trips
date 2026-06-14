@@ -42,13 +42,13 @@ models/
     trips/
       stg_nyc_taxi_trips.sql                        -- rename, cast, generate surrogate key
       int_trips_calculated_total.sql                -- recalculate total from components, derive discrepancy
-      int_trips_cleaned.sql                         -- remove physical outliers (speed, distance, time), deduplicate [incremental]
+      int_trips_cleaned.sql                         -- remove physical outliers, deduplicate [incremental]
       int_trips_flagged.sql                         -- flag suspicious trips and charge reversals, add duration/speed
     zones/
       stg_nyc_taxi_zones.sql                        -- rename, cast
       int_zones_enriched.sql                        -- handle LocationID 264/265, add zone_status flag
   marts/
-    fct_trips_enriched.sql                          -- join trips with zones, main fact table [incremental]
+    fct_trips_enriched.sql                          -- join trips with zones and dimension seeds, main fact table [incremental]
     agg_daily_totals_by_pickup_borough.sql
     agg_weekly_totals_by_pickup_borough.sql
     agg_totals_by_hour.sql
@@ -56,13 +56,20 @@ models/
     rpt_discrepancies_analysis.sql
     rpt_quality_flags.sql
 
+seeds/
+  dim_payment_type.csv                              -- payment type ID to description lookup
+  dim_ratecode.csv                                  -- rate code ID to description lookup
+  dim_store_and_fwd_flag.csv                        -- store and forward flag to description lookup
+  dim_vendor.csv                                    -- vendor ID to name lookup
+
 macros/
+  generate_schema_name.sql                          -- overrides default schema naming to prevent dev/prod prefix collision
   tests/
     not_negative.sql                                -- custom test: rejects negative values
     not_before_date.sql                             -- custom test: rejects timestamps before 1970-01-01
 
 tests/
-  assert_calculated_total_is_correct.sql            -- validates total recalculation formula (last 1 day)
+  assert_calculated_total_is_correct.sql            -- validates total recalculation formula (last 35 days)
   assert_int_trips_cleaned_unique_recent.sql        -- unique trip_id in last 35 days
   assert_flags_not_null_recent.sql                  -- is_suspicious and is_returned not null in last 35 days
   assert_average_speed_in_range_recent.sql          -- average_speed within 0-100 mph in last 35 days
@@ -70,7 +77,7 @@ tests/
 
 .github/
   workflows/
-    dbt_build.yml                                   -- CI/CD: automated dbt build on push and monthly schedule
+    dbt_build.yml                                   -- CI/CD: source freshness check and dbt build on push and monthly schedule
 ```
 
 ## Lineage
@@ -85,9 +92,11 @@ tests/
 
 **Intermediate layer is split by responsibility.** Each `int_` model has one job: `int_trips_calculated_total` recalculates totals, `int_trips_cleaned` removes physical outliers, `int_trips_flagged` adds quality flags. Splitting them keeps the lineage readable and makes it possible to test each transformation step independently.
 
-**Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records newer than the current table max (minus 1 day overlap) are processed through the intermediate view chain.
+**Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records newer than the current table max (minus 35 days overlap) are processed through the intermediate view chain.
 
-**Source freshness scans the raw table directly.** `dbt source freshness` runs a `max(tpep_pickup_datetime)` against `raw.yellow_tripdata` without any filter. DuckDB's columnar storage makes this fast enough for a monthly check. The source is configured with `on_error: continue` so a stale result is logged but does not fail the pipeline. In the GitHub Actions workflow, the freshness step runs with `continue-on-error: true` for the same reason — freshness is informational, not a hard gate.
+**Dimension seeds live in a dedicated schema.** Four CSV seeds (`dim_payment_type`, `dim_ratecode`, `dim_store_and_fwd_flag`, `dim_vendor`) are loaded into a fixed `seeds` schema via `generate_schema_name` macro override. This prevents the schema name from changing between dev and prod targets, making seeds behave like stable reference data rather than environment-specific tables. `fct_trips_enriched` joins against all four seeds to produce human-readable descriptions directly in the fact table, removing the need for lookups in the BI layer.
+
+**Source freshness scans the raw table directly.** `dbt source freshness` runs a `max(tpep_pickup_datetime)` against `raw.yellow_tripdata`. The source is configured with `on_error: continue` so a stale result is logged but does not fail the pipeline. In GitHub Actions, the freshness step runs with `continue-on-error: true` for the same reason: freshness is informational, not a hard gate.
 
 **Singular tests are scoped to recent data.** Generic tests with `config.where` using `{{ this }}` do not resolve correctly in the dbt-duckdb adapter. All windowed tests are implemented as singular tests in `tests/` using `{{ ref() }}`, scoped to the last 35 days to keep test runtime proportional to the incremental window.
 
@@ -119,7 +128,7 @@ tests/
 
 - `not_negative` -- fails if any value in the column is below zero
 - `not_before_date` -- fails if any timestamp predates 1970-01-01
-- `update_watermark` -- called via `post_hook` on `int_trips_cleaned` to maintain the watermark table
+- `generate_schema_name` -- overrides dbt default to prevent dev/prod prefix on seed schema
 
 **Packages used:**
 
@@ -130,6 +139,8 @@ tests/
 
 - Source `not_null` and `accepted_values` on all key columns
 - Referential integrity between trip zone IDs and the zone lookup table
+- Seed `not_null` and `unique` on primary keys of all dimension tables
+- Referential integrity from dimension seeds back to source (vendor, rate code, store flag, payment type)
 - Source freshness via `max(tpep_pickup_datetime)` on raw table (warn after 40 days, error after 80 days)
 - Unique `trip_id` on recent data (last 35 days) via singular test
 - Row count parity between `int_trips_cleaned` and `int_trips_flagged` on recent data
@@ -192,18 +203,14 @@ dbt deps
 # Path: md:nyc_taxi_trips
 # Token: read from MOTHERDUCK_TOKEN environment variable
 
-# Create watermark table (one-time setup)
-# Run in Python or DuckDB CLI:
-# create table if not exists nyc_taxi_trips.raw._metadata_watermarks (
-#     table_name varchar primary key,
-#     last_meter_on timestamp
-# );
-
-# Check source freshness
-dbt source freshness
+# Load dimension seeds
+dbt seed
 
 # Build all models and run all tests
 dbt build
+
+# Check source freshness
+dbt source freshness
 
 # Generate and serve documentation
 dbt docs generate && dbt docs serve

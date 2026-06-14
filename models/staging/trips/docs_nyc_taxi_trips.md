@@ -41,7 +41,7 @@ The final rate code in effect at the end of the trip. If payment type is Flex Fa
 | 4         | Nassau or Westchester  |
 | 5         | Negotiated fare        |
 | 6         | Group ride             |
-| 99        | Null/unknown           |
+| 99        | Unknown                |
 
 {% enddocs %}
 

@@ -4,8 +4,11 @@ trips as (
         date_trunc('month', meter_on) as report_year_month,
         meter_on,
         vendor_id,
+        vendor_name,        
         rate_code_id,
+        rate_code_description,        
         payment_type,
+        payment_type_description,        
         total_amount,
         calculated_total_amount,
         payment_discrepancy
@@ -17,8 +20,11 @@ final as (
     select
         report_year_month,
         vendor_id,
+        vendor_name,
         rate_code_id,
+        rate_code_description,
         payment_type,
+        payment_type_description,
         sum(
             case
                 when total_amount = calculated_total_amount then 0 else 1
@@ -37,8 +43,11 @@ final as (
     group by 
         report_year_month,
         vendor_id,
+        vendor_name,
         rate_code_id,
-        payment_type
+        rate_code_description,
+        payment_type,
+        payment_type_description
 )
 
 select * from final

@@ -19,6 +19,11 @@ models:
         description: >
           "{{ doc('vendorid') }}"
 
+      - name: vendor_name
+        data_type: varchar
+        description: >
+          "{{ doc('vendorid') }}"
+
       - name: meter_on
         data_type: timestamp
         description: >
@@ -29,15 +34,91 @@ models:
         description: >
           The date and time when the meter was disengaged
 
-      - name: passenger_count
-        data_type: smallint
+      - name: duration_time
+        data_type: interval
         description: >
-          The number of passengers in the vehicle.
+          Calculated time interval representing the total duration of the trip (meter_off minus meter_on).
 
       - name: trip_distance
         data_type: decimal(8,2)
         description: >
           The elapsed trip distance in miles reported by the taximeter.
+
+      - name: average_speed
+        data_type: double
+        description: >
+          Calculated average travel speed in miles per hour during the trip. Returns null if the trip distance is 0 or if the start and end times are identical to prevent division by zero errors.
+
+      - name: passenger_count
+        data_type: smallint
+        description: >
+          The number of passengers in the vehicle.
+
+      - name: meter_on_zone_id
+        data_type: smallint
+        description: >
+          TLC Taxi Zone in which the taximeter was engaged.
+
+      - name: pickup_borough
+        data_type: varchar
+        description: >
+          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
+
+      - name: pickup_zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
+
+      - name: pickup_service_zone
+        data_type: varchar
+        description: >
+          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+        data_tests:
+          - not_null
+
+      - name: pickup_zone_status
+        data_type: varchar
+        description: >
+          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+        data_tests:
+          - not_null
+
+      - name: meter_off_zone_id
+        data_type: smallint
+        description: >
+          TLC Taxi Zone in which the taximeter was disengaged.
+
+      - name: dropoff_borough
+        data_type: varchar
+        description: >
+          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
+
+      - name: dropoff_zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        data_tests:
+          - not_null
+
+      - name: dropoff_service_zone
+        data_type: varchar
+        description: >
+          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
+        data_tests:
+          - not_null
+
+      - name: dropoff_zone_status
+        data_type: varchar
+        description: >
+          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
+        data_tests:
+          - not_null
 
       - name: rate_code_id
         data_type: smallint
@@ -50,23 +131,18 @@ models:
               arguments:
                 values: [99]
 
-      - name: stored_flag
+      - name: rate_code_description
         data_type: varchar
         description: >
-          "{{ doc('store_and_fwd_flag') }}"
-
-      - name: meter_on_zone_id
-        data_type: smallint
-        description: >
-          TLC Taxi Zone in which the taximeter was engaged.
-
-      - name: meter_off_zone_id
-        data_type: smallint
-        description: >
-          TLC Taxi Zone in which the taximeter was disengaged.
+          "{{ doc('ratecodeidenriched') }}"
 
       - name: payment_type
         data_type: smallint
+        description: >
+          "{{ doc('payment_type') }}"
+
+      - name: payment_type_description
+        data_type: varchar
         description: >
           "{{ doc('payment_type') }}"
 
@@ -140,68 +216,12 @@ models:
         description: >
           True if the trip is part of a charge/reversal pair (same vendor, timestamps, zones, and fares that sum to zero). Both matching records in the pair are flagged. Business decision pending on whether to keep or deduplicate.
 
-      - name: duration_time
-        data_type: interval
+      - name: stored_flag
+        data_type: char(1)
         description: >
-          Calculated time interval representing the total duration of the trip (meter_off minus meter_on).
+          "{{ doc('store_and_fwd_flag') }}"
 
-      - name: average_speed
-        data_type: double
-        description: >
-          Calculated average travel speed in miles per hour during the trip. Returns null if the trip distance is 0 or if the start and end times are identical to prevent division by zero errors.
-
-      - name: pickup_borough
+      - name: stored_flag_description
         data_type: varchar
         description: >
-          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
-        data_tests:
-          - not_null
-
-      - name: pickup_zone
-        data_type: varchar
-        description: >
-          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
-        data_tests:
-          - not_null
-
-      - name: pickup_service_zone
-        data_type: varchar
-        description: >
-          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
-        data_tests:
-          - not_null
-
-      - name: dropoff_borough
-        data_type: varchar
-        description: >
-          The administrative district of New York City where the taxi zone is situated. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
-        data_tests:
-          - not_null
-
-      - name: dropoff_zone
-        data_type: varchar
-        description: >
-          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
-        data_tests:
-          - not_null
-
-      - name: dropoff_service_zone
-        data_type: varchar
-        description: >
-          The regulatory service classification designated by the TLC. Values 264 and 265 are standardized to 'Unknown' and 'Outside of NYC'
-        data_tests:
-          - not_null
-
-      - name: pickup_zone_status
-        data_type: varchar
-        description: >
-          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
-        data_tests:
-          - not_null
-
-      - name: dropoff_zone_status
-        data_type: varchar
-        description: >
-          A custom operational flag derived to simplify geographical filtering. Categorizes rows into three distinct statuses: 'Zone inside NYC', 'Zone outside NYC', or 'Zone unknown'.
-        data_tests:
-          - not_null
+          "{{ doc('store_and_fwd_flag') }}"

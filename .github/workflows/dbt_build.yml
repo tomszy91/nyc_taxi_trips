@@ -50,6 +50,12 @@ jobs:
               env:
                 MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
 
+            - name: dbt seed run
+              run: |
+                dbt seed 
+              env:
+                MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+
             - name: dbt build run
               run: |
                 dbt build 
