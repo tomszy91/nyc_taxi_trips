@@ -7,7 +7,7 @@ trips as (
 year_week as (
     select
      *,
-     extract (year from meter_on) * 100 + extract (week from meter_on) as year_week
+     extract (isoyear from meter_on) * 100 + extract (week from meter_on) as year_week
     from trips
 ),
 
