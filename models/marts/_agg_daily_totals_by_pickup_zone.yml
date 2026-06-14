@@ -11,6 +11,7 @@ models:
               - report_year_month
               - date
               - pickup_borough
+              - pickup_zone
     columns:
       - name: report_year_month
         data_type: timestamp
@@ -30,6 +31,13 @@ models:
           The borough where the trip started (e.g., Manhattan, Brooklyn, Queens).
         tests:
           - not_null
+
+      - name: pickup_zone
+        data_type: varchar
+        description: >
+          The human-readable name of the specific neighborhood or geographic area designated as a TLC taxi zone. Values 264 and 265 are cleaned and mapped to 'Unknown' and 'Outside of NYC' respectively.
+        tests:
+          - not_null     
 
       - name: total_trips
         data_type: bigint
