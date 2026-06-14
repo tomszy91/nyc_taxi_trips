@@ -1,9 +1,9 @@
 version: 2
 
 models:
-  - name: agg_daily_totals_by_pickup_borough
+  - name: agg_daily_totals_by_pickup_zone
     description: >
-      Daily aggregation of NYC taxi trip counts, financial metrics, and payment discrepancies, segmented by pickup borough.
+      Daily aggregation of NYC taxi trip counts, financial metrics, and payment discrepancies, segmented by pickup borough and zone.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:

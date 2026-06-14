@@ -49,8 +49,8 @@ models/
       int_zones_enriched.sql                        -- handle LocationID 264/265, add zone_status flag
   marts/
     fct_trips_enriched.sql                          -- join trips with zones and dimension seeds, main fact table [incremental]
-    agg_daily_totals_by_pickup_borough.sql
-    agg_weekly_totals_by_pickup_borough.sql
+    agg_daily_totals_by_pickup_zone.sql
+    agg_weekly_totals_by_pickup_zone.sql
     agg_totals_by_hour.sql
     agg_totals_by_weekday.sql
     rpt_discrepancies_analysis.sql
@@ -113,8 +113,8 @@ tests/
 | Model | Grain | Primary use |
 | --- | --- | --- |
 | `fct_trips_enriched` | One row per trip | Base fact table; slice by any dimension |
-| `agg_daily_totals_by_pickup_borough` | Date x Borough | Daily revenue trend by area |
-| `agg_weekly_totals_by_pickup_borough` | ISO Year-Week x Borough | Weekly revenue trend by area |
+| `agg_daily_totals_by_pickup_zone` | Date x Borough | Daily revenue trend by area |
+| `agg_weekly_totals_by_pickup_zone` | ISO Year-Week x Borough | Weekly revenue trend by area |
 | `agg_totals_by_hour` | Hour of day (0-23) | Peak hour analysis |
 | `agg_totals_by_weekday` | ISO day of week (1=Mon, 7=Sun) | Weekday vs weekend patterns |
 | `rpt_discrepancies_analysis` | Vendor x Rate code x Payment type | Fare discrepancy audit |

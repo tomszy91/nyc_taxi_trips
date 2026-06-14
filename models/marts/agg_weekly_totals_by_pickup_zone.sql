@@ -15,6 +15,7 @@ final as (
 select
     year_week,
     pickup_borough,
+    pickup_zone,
     sum(fare_amount) as total_fare_amount,
     sum(extra_charges) as total_extra_charges,
     sum(tax_amount) as total_tax_amount,
@@ -28,6 +29,6 @@ select
     sum(calculated_total_amount) as total_calculated_total_amount,
     sum(payment_discrepancy) as total_payment_discrepancy
 from year_week
-group by year_week, pickup_borough)
+group by year_week, pickup_borough, pickup_zone)
 
 select * from final

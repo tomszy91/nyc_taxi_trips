@@ -7,6 +7,7 @@ select
     date_trunc('month', meter_on) as report_year_month,
     meter_on::date as date,
     pickup_borough,
+    pickup_zone,
     sum(fare_amount) as total_fare_amount,
     sum(extra_charges) as total_extra_charges,
     sum(tax_amount) as total_tax_amount,
@@ -20,7 +21,7 @@ select
     sum(calculated_total_amount) as total_calculated_total_amount,
     sum(payment_discrepancy) as total_payment_discrepancy
 from trips
-group by report_year_month, meter_on::date, pickup_borough
+group by report_year_month, meter_on::date, pickup_borough, pickup_zone
 )
 
 select * from final
