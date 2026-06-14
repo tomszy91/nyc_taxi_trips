@@ -4,6 +4,7 @@ logs/
 data/
 .vscode/
 *.rar
+pbi/
 
 test.sql
 dev.duckdb

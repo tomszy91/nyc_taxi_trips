@@ -33,7 +33,7 @@ final as (
         round(sum(
             case
                 when total_amount = calculated_total_amount then 0 else 1
-            end) / count(*) * 100.0, 2) as trips_with_discrepancy_share,
+            end) / count(*) * 1.0, 4) as trips_with_discrepancy_share,
         round(avg(total_amount),2) as avg_total_amount,
         round(avg(calculated_total_amount),2) as avg_calculated_total_amount,
         min(payment_discrepancy) as min_payment_discrepancy,

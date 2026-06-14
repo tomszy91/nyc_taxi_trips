@@ -221,3 +221,5 @@ dbt docs generate && dbt docs serve
 ## Known limitations and open items
 
 **`is_returned` flags both records in a charge/reversal pair.** The current implementation marks both the original charge and its reversal as `is_returned = true`. The correct treatment (deduplicate vs. keep both) is a pending business decision. See inline comment in `int_trips_flagged.sql`.
+
+**dbt Snapshots** were considered for tracking historical changes in dimension data. Given that both the trip fact data and dimension seeds are immutable in this project, snapshots were not implemented as they would provide no value on append-only sources

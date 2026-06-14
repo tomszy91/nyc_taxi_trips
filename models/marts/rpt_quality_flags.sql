@@ -49,8 +49,8 @@ flags_count as (
 shares as (
     select
         *,
-        round((total_suspicious_trips / total_trips) * 100, 2) as suspicious_trips_share,
-        round((total_returned_trips / total_trips) * 100, 2) as returned_trips_share
+        round((total_suspicious_trips / total_trips) * 1.0, 4) as suspicious_trips_share,
+        round((total_returned_trips / total_trips) * 1.0, 4) as returned_trips_share
     from flags_count
 ),
 final as (

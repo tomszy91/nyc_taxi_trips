@@ -23,7 +23,7 @@ select
     sum(improvement_surcharge) as total_improvement_surcharge,
     sum(congestion_surcharge) as total_congestion_surcharge,
     sum(airport_fee) as total_airport_fee,
-    sum(cbd_congestion_fee) as_cbd_congestion_fee,
+    sum(cbd_congestion_fee) as total_cbd_congestion_fee,
     sum(total_amount) as total_amount,
     sum(calculated_total_amount) as total_calculated_total_amount,
     sum(payment_discrepancy) as total_payment_discrepancy
