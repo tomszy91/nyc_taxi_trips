@@ -8,6 +8,7 @@ select
     meter_on::date as date,
     pickup_borough,
     pickup_zone,
+    count(*) as total_trips,
     sum(fare_amount) as total_fare_amount,
     sum(extra_charges) as total_extra_charges,
     sum(tax_amount) as total_tax_amount,

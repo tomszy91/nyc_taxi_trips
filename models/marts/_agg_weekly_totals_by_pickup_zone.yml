@@ -25,6 +25,11 @@ models:
         tests:
           - not_null
 
+      - name: total_trips
+        data_type: bigint
+        description: >
+          Aggregated number of trips in the group.
+
       - name: total_fare_amount
         data_type: "decimal(38,2)"
         description: >
