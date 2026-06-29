@@ -8,10 +8,10 @@ with recent as (
     select
         trip_id,
         average_speed
-    from {{ ref('int_trips_flagged') }}
+    from {{ ref('fct_trips_enriched') }}
     where meter_on::date >= (
         select max(meter_on)::date - interval '35 day'
-        from {{ ref('int_trips_flagged') }}
+        from {{ ref('fct_trips_enriched') }}
     )
       and average_speed is not null
 )
