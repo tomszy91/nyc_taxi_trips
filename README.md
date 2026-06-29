@@ -93,7 +93,8 @@ tests/
 
 **Intermediate layer is split by responsibility.** Each `int_` model has one job: `int_trips_calculated_total` recalculates totals, `int_trips_cleaned` removes physical outliers, `int_trips_flagged` adds quality flags. Splitting them keeps the lineage readable and makes it possible to test each transformation step independently.
 
-**Two incremental models with merge strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'merge'`. On each run, only records newer than the current table max (minus 35 days overlap) are processed through the intermediate view chain.
+**Two incremental models with delete+insert strategy.** `int_trips_cleaned` and `fct_trips_enriched` are materialized as incremental tables with `unique_key = 'trip_id'` and `incremental_strategy = 'delete+insert'`. On each run, only records newer than the current table max (minus 35 days overlap) are processed through the intermediate view chain.
+This has been split into two incremental models due to the operations performed on the tables and their volume. `int_trips_cleaned` cleans the new data; `seeds` and `int_zones_enriched` are joined to the new data in `fct_trips_enriched`.
 
 **Dimension seeds live in a dedicated schema.** Four CSV seeds (`dim_payment_type`, `dim_ratecode`, `dim_store_and_fwd_flag`, `dim_vendor`) are loaded into a fixed `seeds` schema via `generate_schema_name` macro override. This prevents the schema name from changing between dev and prod targets, making seeds behave like stable reference data rather than environment-specific tables. `fct_trips_enriched` joins against all four seeds to produce human-readable descriptions directly in the fact table, removing the need for lookups in the BI layer.
 
@@ -167,7 +168,7 @@ con.execute("""
 
 The GitHub Actions scheduler fires on the first day of each month at 08:00 UTC. It first checks source freshness, then runs `dbt build` against the `prod` schema on MotherDuck.
 
-On incremental runs, only records newer than the current table max (minus 1 day overlap) are processed through the transformation chain. A full rebuild from scratch can be forced with:
+On incremental runs, records from the last 35 days (relative to the current table's maximum meter_on date) are re-processed through the transformation chain. This extended 35-day lookback window is explicitly designed to safely capture late-arriving data resulting from monthly source updates. A full rebuild from scratch can be forced with:
 
 ```bash
 dbt build --full-refresh
@@ -202,7 +203,7 @@ dbt deps
 # Target: dev
 # Type: duckdb
 # Path: md:nyc_taxi_trips
-# Token: read from MOTHERDUCK_TOKEN environment variable
+# Token: read from MOTHERDUCK_TOKEN environment secret
 
 # Load dimension seeds
 dbt seed

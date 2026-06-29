@@ -2,15 +2,18 @@
     config(
         materialized = 'incremental',
         unique_key = 'trip_id',
-        incremental_strategy = 'merge'
+        incremental_strategy = 'delete+insert'
     )}}
 
 with
 trips as (
+    -- replacing nulls with 99 when payment type is Flex Fare. With thus payment, rate code is unknown.
     select * REPLACE (case
             when payment_type = 0 then 99
             else rate_code_id
-        end as rate_code_id)
+        end as rate_code_id),
+        meter_off - meter_on as duration_time,
+        case when (trip_distance = 0) or (meter_off = meter_on) then null else round(trip_distance::numeric / (datediff('second', meter_on, meter_off) / 3600::numeric),2) end as average_speed
     from {{ ref('int_trips_flagged') }}
     {% if is_incremental() %}
     where meter_on::date >= (select (max(meter_on) - interval '35 day') from {{ this }}) 

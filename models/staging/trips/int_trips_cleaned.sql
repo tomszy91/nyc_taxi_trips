@@ -2,7 +2,7 @@
     config(
         materialized = 'incremental',
         unique_key = 'trip_id',
-        incremental_strategy = 'merge'
+        incremental_strategy = 'delete+insert'
     )
 }}
 
@@ -29,17 +29,12 @@ filtered_outliers as (
         -- average speed lower than 100 mph
         and trip_distance::numeric / (datediff('second', meter_on, meter_off) / 3600::numeric) < 100
 ),
+-- may be non-deterministic when there are two identical trip_distance values
 deduplicated as (
     select 
         *,
         row_number() over (
-            partition by 
-                vendor_id, 
-                meter_on, 
-                meter_off, 
-                meter_on_zone_id, 
-                meter_off_zone_id, 
-                total_amount
+            partition by trip_id
             order by trip_distance desc
         ) as rn
     from filtered_outliers

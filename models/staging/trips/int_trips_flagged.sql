@@ -5,6 +5,7 @@ with source as (
 -- flagging charged but returned fare
 returned_fare as (
     select
+        -- trip_id cannot be used as it is combined with fare_amount which can be both > 0 and < 0 for returned pairs
         vendor_id, meter_on, meter_off, meter_on_zone_id, meter_off_zone_id,
         sum(fare_amount) as fare_sum,
         sum(total_amount) as total_sum
@@ -21,8 +22,8 @@ suspicious_trip as (
     select
         *,
         case
-            -- is null is ok, as it is linked with Flex Fare trip
-            when ((passenger_count = 0)) then true
+            -- null is ok, as it is linked with Flex Fare trip. Only 0 is suspicious.
+            when (passenger_count = 0) then true
 
             -- trips without distance or negative distance
             when ((trip_distance is null) or (trip_distance <= 0)) then true
@@ -36,14 +37,12 @@ suspicious_trip as (
 ),
 
 -- adding returned fare flag to main table
---    True if the trip is part of a charge/reversal pair (same vendor, time, zones, fare sums to zero). Both records in the pair are flagged. 
---    Business decision pending: whether to deduplicate or keep both records.
+-- True if the trip is part of a charge/reversal pair (same vendor, time, zones, fare sums to zero). Both records in the pair are flagged. 
+-- Business decision pending: whether to deduplicate or keep both records.
 enriched as (
     select
         s.*,
-        case when r.vendor_id is not null then true else false end as is_returned,
-        s.meter_off - s.meter_on as duration_time,
-        case when (s.trip_distance = 0) or (s.meter_off = s.meter_on) then null else round(s.trip_distance::numeric / (datediff('second', s.meter_on, s.meter_off) / 3600::numeric),2) end as average_speed
+        case when r.vendor_id is not null then true else false end as is_returned
     from suspicious_trip as s left join returned_fare as r on
         s.vendor_id = r.vendor_id
         and s.meter_on = r.meter_on
