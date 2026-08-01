@@ -20,9 +20,10 @@ jobs:
               with:
                 python-version: '3.12'
 
-            - name: dbt install
+            - name: dbt install requirements
               run: |
-                pip install dbt-duckdb
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
 
             - name: profiles.yml create
               run: |
